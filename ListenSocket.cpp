@@ -229,6 +229,7 @@ void CClientReqSocket::Disconnect(LPCTSTR pszReason){
 void CClientReqSocket::Delete_Timed(){
 // it seems that MFC Sockets call socketfunctions after they are deleted, even if the socket is closed
 // and select(0) is set. So we need to wait some time to make sure this doesn't happens
+// we currently also trust on this for multithreading, rework snychronization if this ever changes
 	if (::GetTickCount() - deltimer > 10000)
 		delete this;
 }
@@ -630,7 +631,7 @@ bool CClientReqSocket::ProcessPacket(const BYTE* packet, uint32 size, UINT opcod
 							reqblock->EndOffset = auEndOffsets[i];
 							md4cpy(reqblock->FileID, reqfilehash);
 							reqblock->transferred = 0;
-							client->AddReqBlock(reqblock);
+							client->AddReqBlock(reqblock, false);
 						}
 						else
 						{
@@ -641,6 +642,7 @@ bool CClientReqSocket::ProcessPacket(const BYTE* packet, uint32 size, UINT opcod
 							}
 						}
 					}
+					client->AddReqBlock(NULL, true);
 					break;
 				}
 				case OP_CANCELTRANSFER:
@@ -1963,7 +1965,7 @@ bool CClientReqSocket::ProcessExtPacket(const BYTE* packet, uint32 size, UINT op
 							reqblock->EndOffset = auEndOffsets[i];
 							md4cpy(reqblock->FileID, reqfilehash);
 							reqblock->transferred = 0;
-							client->AddReqBlock(reqblock);
+							client->AddReqBlock(reqblock, false);
 						}
 						else
 						{
@@ -1974,6 +1976,7 @@ bool CClientReqSocket::ProcessExtPacket(const BYTE* packet, uint32 size, UINT op
 							}
 						}
 					}
+					client->AddReqBlock(NULL, true);
 					break;
 				}
 				case OP_COMPRESSEDPART:

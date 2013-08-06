@@ -33,7 +33,7 @@ struct StandardPacketQueueEntry {
 	Packet* packet;
 };
 
-class CEMSocket : public CEncryptedStreamSocket, public ThrottledFileSocket // ZZ:UploadBandWithThrottler (UDP)
+class CEMSocket : public CEncryptedStreamSocket, public ThrottledFileSocket // ZZ:UploadBandWithThrottler
 {
 	DECLARE_DYNAMIC(CEMSocket)
 public:
@@ -47,9 +47,12 @@ public:
 	void	SetDownloadLimit(uint32 limit);
 	void	DisableDownloadLimit();
 	BOOL	AsyncSelect(long lEvent);
-	virtual bool IsBusy() const			{return m_bBusy;}
-    virtual bool HasQueues() const		{return (sendbuffer || standartpacket_queue.GetCount() > 0 || controlpacket_queue.GetCount() > 0);} // not trustworthy threaded? but it's ok if we don't get the correct result now and then
+	virtual bool IsBusyExtensiveCheck();
+	virtual bool IsBusyQuickCheck() const;
+    virtual bool HasQueues(bool bOnlyStandardPackets = false) const;
+	virtual bool IsEnoughFileDataQueued(uint32 nMinFilePayloadBytes) const;
 	virtual bool UseBigSendBuffer();
+	int			 DbgGetStdQueueCount() const	{return standartpacket_queue.GetCount();}
 
 	virtual UINT GetTimeOut() const;
 	virtual void SetTimeOut(UINT uTimeOut);
@@ -68,7 +71,7 @@ public:
 	uint64 GetSentBytesCompleteFileSinceLastCallAndReset();
 	uint64 GetSentBytesPartFileSinceLastCallAndReset();
 	uint64 GetSentBytesControlPacketSinceLastCallAndReset();
-	uint64 GetSentPayloadSinceLastCallAndReset();
+	uint64 GetSentPayloadSinceLastCall(bool bReset);
 	void TruncateQueues();
 
     virtual SocketSentBytes SendControlData(uint32 maxNumberOfBytesToSend, uint32 minFragSize) { return Send(maxNumberOfBytesToSend, minFragSize, true); };
@@ -98,8 +101,11 @@ protected:
 
 private:
     virtual SocketSentBytes Send(uint32 maxNumberOfBytesToSend, uint32 minFragSize, bool onlyAllowedToSendControlPacket);
+	SocketSentBytes SendStd(uint32 maxNumberOfBytesToSend, uint32 minFragSize, bool onlyAllowedToSendControlPacket);
+	SocketSentBytes SendOv(uint32 maxNumberOfBytesToSend, uint32 minFragSize, bool onlyAllowedToSendControlPacket);
 	void	ClearQueues();
 	virtual int Receive(void* lpBuf, int nBufLen, int nFlags = 0);
+	void	CleanUpOverlappedSendOperation(bool bCancelRequestFirst);
 
     uint32 GetNextFragSize(uint32 current, uint32 minFragSize);
     bool    HasSent() { return m_hasSent; }
@@ -121,6 +127,8 @@ private:
 	char*	sendbuffer;
 	uint32	sendblen;
 	uint32	sent;
+	LPWSAOVERLAPPED m_pPendingSendOperation;
+	CArray<WSABUF> m_aBufferSend;
 
 	CTypedPtrList<CPtrList, Packet*> controlpacket_queue;
 	CList<StandardPacketQueueEntry> standartpacket_queue;
@@ -134,9 +142,10 @@ private:
 	DWORD lastCalledSend;
     DWORD lastSent;
 	uint32 lastFinishedStandard;
-	uint32 m_actualPayloadSize;
+	uint32 m_actualPayloadSize;			// Payloadsize of the data currently in sendbuffer
 	uint32 m_actualPayloadSizeSent;
     bool m_bBusy;
     bool m_hasSent;
 	bool m_bUsesBigSendBuffers;
+	bool m_bOverlappedSending;
 };

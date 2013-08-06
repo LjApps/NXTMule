@@ -74,7 +74,9 @@ public:
 	
 	CKnownFile* GetFileByID(const uchar* filehash) const;
 	CKnownFile* GetFileByIdentifier(const CFileIdentifierBase& rFileIdent, bool bStrict = false) const;
-	CKnownFile*	GetFileByIndex(int index);
+	CKnownFile*	GetFileByIndex(int index) const; // slow
+	CKnownFile* GetFileByAICH(const CAICHHash& rHash) const; // slow
+
 	bool	IsFilePtrInList(const CKnownFile* file) const; // slow
 	bool	IsUnsharedFile(const uchar* auFileHash) const;
 	bool	ShouldBeShared(CString strPath, CString strFilePath, bool bMustBeShared) const;
@@ -92,7 +94,7 @@ public:
 
 	bool	GetPopularityRank(const CKnownFile* pFile, uint32& rnOutSession, uint32& rnOutTotal) const;
 
-	CMutex	m_mutWriteList;
+	CCriticalSection	m_mutWriteList; // don't acquire other locks while having this one in the main thread or make sure deadlocks are impossible
 
 protected:
 	bool	AddFile(CKnownFile* pFile);

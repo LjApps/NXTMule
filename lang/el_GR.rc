@@ -1937,8 +1937,8 @@ BEGIN
     IDS_DONOTASKAGAIN       "Να μην ξαναγίνει ερώτηση"
     IDS_POPULARITY          "Δημοτικότητα"
     IDS_SHOWWIN7TASKBARGOODIES "Ενεργοποίηση των Windows 7 taskbar effects"
-    IDS_LANMODE             "LAN Mode"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_LANMODE             "Κατάσταση LAN"
+    IDS_OPENPREFINI         "’νοιγμα του preferences.ini"
 END
 
 #endif    // Greek resources

@@ -1994,7 +1994,7 @@ BEGIN
     IDS_POPULARITY          "Míra oblíbenosti"
     IDS_SHOWWIN7TASKBARGOODIES "Povolit efekty hlavního panelu ve Windows 7"
     IDS_LANMODE             "LAN mód"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_OPENPREFINI         "Otevøít preferences.ini"
 END
 
 #endif    // Czech resources

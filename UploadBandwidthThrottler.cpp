@@ -26,6 +26,7 @@
 #include "emuledlg.h"
 #include "uploadqueue.h"
 #include "preferences.h"
+#include "UploadDiskIOThread.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -420,7 +421,6 @@ UINT UploadBandwidthThrottler::RunInternal() {
 
     bool estimateChangedLog = false;
     bool lotsOfLog = false;
-	bool bAlwaysEnableBigSocketBuffers = false;
 
 	while(doRun) {
         pauseEvent->Lock();
@@ -433,21 +433,22 @@ UINT UploadBandwidthThrottler::RunInternal() {
         // check busy level for all the slots (WSAEWOULDBLOCK status)
         uint32 cBusy = 0;
         uint32 nCanSend = 0;
-
         sendLocker.Lock();
+		m_eventNewDataAvailable.ResetEvent();
+		m_eventSocketAvailable.ResetEvent();
         for (int i = 0; i < m_StandardOrder_list.GetSize() && (i < 3 || (UINT)i < GetSlotLimit(theApp.uploadqueue->GetDatarate())); i++){
             if (m_StandardOrder_list[i] != NULL && m_StandardOrder_list[i]->HasQueues()) {
                 nCanSend++;
 
-                if(m_StandardOrder_list[i]->IsBusy())
+                if(m_StandardOrder_list[i]->IsBusyExtensiveCheck())
 					cBusy++;
             }
 		}
         sendLocker.Unlock();
 
         // if this is kept, the loop above can be a little optimized (don't count nCanSend, just use nCanSend = GetSlotLimit(theApp.uploadqueue->GetDatarate())
-        if(theApp.uploadqueue)
-            nCanSend = max(nCanSend, GetSlotLimit(theApp.uploadqueue->GetDatarate()));
+        //if(theApp.uploadqueue)
+        //   nCanSend = max(nCanSend, GetSlotLimit(theApp.uploadqueue->GetDatarate()));
 
         // When no upload limit has been set in options, try to guess a good upload limit.
 		bool bUploadUnlimited = (thePrefs.GetMaxUpload() == UNLIMITED);
@@ -544,7 +545,7 @@ UINT UploadBandwidthThrottler::RunInternal() {
 		}
 
         if(cBusy == nCanSend && m_StandardOrder_list.GetSize() > 0) {
-            allowedDataRate = 0;
+            //allowedDataRate = 0;
             if(nSlotsBusyLevel < 125 && bUploadUnlimited) {
                 nSlotsBusyLevel = 125;
                 if(thePrefs.GetVerbose() && lotsOfLog) theApp.QueueDebugLogLine(false,_T("Throttler: nSlotsBusyLevel: %i Guessed limit: %0.5f changesCount %i loopsCount: %i (set due to all slots busy)"), nSlotsBusyLevel, (float)nEstiminatedLimit/1024.00f, changesCount, loopsCount);
@@ -572,7 +573,16 @@ UINT UploadBandwidthThrottler::RunInternal() {
         }
 
         if(timeSinceLastLoop < sleepTime) {
-            Sleep(sleepTime-timeSinceLastLoop);
+			if (nCanSend == 0)
+			{
+				if (theApp.m_pUploadDiskIOThread != NULL)
+					theApp.m_pUploadDiskIOThread->SocketNeedsMoreData();
+				WaitForSingleObject(m_eventNewDataAvailable, sleepTime-timeSinceLastLoop);
+			}
+			else if (cBusy == nCanSend)
+				WaitForSingleObject(m_eventSocketAvailable, sleepTime-timeSinceLastLoop);
+			else
+				Sleep(sleepTime-timeSinceLastLoop);
         }
 
 		const DWORD thisLoopTick = timeGetTime();
@@ -581,13 +591,18 @@ UINT UploadBandwidthThrottler::RunInternal() {
 		// Calculate how many bytes we can spend
         sint64 bytesToSpend = 0;
 
-        if(allowedDataRate != _UI32_MAX) {
+        if(allowedDataRate != _UI32_MAX)
+		{
             // prevent overflow
-            if(timeSinceLastLoop == 0) {
+            if(timeSinceLastLoop == 0)
+			{
                 // no time has passed, so don't add any bytes. Shouldn't happen.
-                bytesToSpend = 0; //realBytesToSpend/1000;
-            } else if(_I64_MAX/timeSinceLastLoop > allowedDataRate && _I64_MAX-allowedDataRate*timeSinceLastLoop > realBytesToSpend) {
-                if(timeSinceLastLoop > sleepTime + 2000) {
+                bytesToSpend = realBytesToSpend/1000;
+            }
+			else if(_I64_MAX/timeSinceLastLoop > allowedDataRate && _I64_MAX-allowedDataRate*timeSinceLastLoop > realBytesToSpend)
+			{
+                if(timeSinceLastLoop > sleepTime + 2000)
+				{
 			        theApp.QueueDebugLogLine(false,_T("UploadBandwidthThrottler: Time since last loop too long. time: %ims wanted: %ims Max: %ims"), timeSinceLastLoop, sleepTime, sleepTime + 2000);
         
                     timeSinceLastLoop = sleepTime + 2000;
@@ -627,7 +642,7 @@ UINT UploadBandwidthThrottler::RunInternal() {
 		    }
     
 		    tempQueueLocker.Unlock();
-    
+			bool bNeedMoreData = false;
 		    // Send any queued up control packets first
 		    while((bytesToSpend > 0 && spentBytes < (uint64)bytesToSpend || allowedDataRate == 0 && spentBytes < 500) && (!m_ControlQueueFirst_list.IsEmpty() || !m_ControlQueue_list.IsEmpty())) {
 			    ThrottledControlSocket* socket = NULL;
@@ -660,7 +675,8 @@ UINT UploadBandwidthThrottler::RunInternal() {
 						    uint32 lastSpentBytes = socketSentBytes.sentBytesControlPackets + socketSentBytes.sentBytesStandardPackets;
 						    spentBytes += lastSpentBytes;
 						    spentOverhead += socketSentBytes.sentBytesControlPackets;
-
+							if (socketSentBytes.sentBytesStandardPackets > 0 && socket->IsEnoughFileDataQueued(EMBLOCKSIZE))
+								bNeedMoreData = true;
                             if(lastSpentBytes > 0 && slotCounter < m_highestNumberOfFullyActivatedSlots) {
                                 m_highestNumberOfFullyActivatedSlots = slotCounter;
                             }
@@ -676,11 +692,6 @@ UINT UploadBandwidthThrottler::RunInternal() {
             if(maxSlot > 0 && allowedDataRate/maxSlot < UPLOAD_CLIENT_DATARATE) {
                 maxSlot = allowedDataRate/UPLOAD_CLIENT_DATARATE;
             }
-			// if we are uploading fast, increase the sockets sendbuffers in order to be able to archive faster
-			// speeds
-			bool bUseBigBuffers = bAlwaysEnableBigSocketBuffers;
-			if (maxSlot > 0 && (allowedDataRate == _UI32_MAX || allowedDataRate/maxSlot > 100 * 1024) && theApp.uploadqueue->GetDatarate() > 300 * 1024)
-				bUseBigBuffers = true;
 
             if(maxSlot > m_highestNumberOfFullyActivatedSlots) {
 			    m_highestNumberOfFullyActivatedSlots = maxSlot;
@@ -694,11 +705,10 @@ UINT UploadBandwidthThrottler::RunInternal() {
 
                 ThrottledFileSocket* socket = m_StandardOrder_list.GetAt(rememberedSlotCounter);
 				if(socket != NULL) {
-					if (bUseBigBuffers)
-						socket->UseBigSendBuffer();
-					SocketSentBytes socketSentBytes = socket->SendFileAndControlData((UINT)min(doubleSendSize, bytesToSpend-spentBytes), doubleSendSize);
+					SocketSentBytes socketSentBytes = socket->SendFileAndControlData((UINT)min(max(doubleSendSize, (uint64)bytesToSpend/maxSlot), (uint64)bytesToSpend-spentBytes), doubleSendSize);
 					uint32 lastSpentBytes = socketSentBytes.sentBytesControlPackets + socketSentBytes.sentBytesStandardPackets;
-
+					if (socketSentBytes.sentBytesStandardPackets > 0 && !socket->IsEnoughFileDataQueued(EMBLOCKSIZE))
+						bNeedMoreData = true;
 					spentBytes += lastSpentBytes;
 					spentOverhead += socketSentBytes.sentBytesControlPackets;
 				} else {
@@ -714,13 +724,15 @@ UINT UploadBandwidthThrottler::RunInternal() {
 
 				if(socket != NULL) {
                     uint32 bytesToSpendTemp = (UINT)(bytesToSpend-spentBytes);
-					SocketSentBytes socketSentBytes = socket->SendFileAndControlData(bytesToSpendTemp, doubleSendSize);
+					SocketSentBytes socketSentBytes = socket->SendFileAndControlData(max(bytesToSpendTemp, doubleSendSize), doubleSendSize);
+					if (socketSentBytes.sentBytesStandardPackets > 0 && !socket->IsEnoughFileDataQueued(EMBLOCKSIZE))
+						bNeedMoreData = true;
 					uint32 lastSpentBytes = socketSentBytes.sentBytesControlPackets + socketSentBytes.sentBytesStandardPackets;
 
 					spentBytes += lastSpentBytes;
 					spentOverhead += socketSentBytes.sentBytesControlPackets;
 
-                    if(slotCounter+1 > m_highestNumberOfFullyActivatedSlots && (lastSpentBytes < bytesToSpendTemp || lastSpentBytes >= doubleSendSize)) { // || lastSpentBytes > 0 && spentBytes == bytesToSpend /*|| slotCounter+1 == (uint32)m_StandardOrder_list.GetSize())*/)) {
+                    if(slotCounter+1 > m_highestNumberOfFullyActivatedSlots && (lastSpentBytes < bytesToSpendTemp || lastSpentBytes >= doubleSendSize)) { // || lastSpentBytes > 0 && spentBytes == bytesToSpend )) {
                         m_highestNumberOfFullyActivatedSlots = slotCounter+1;
                     }
 				} else {
@@ -758,6 +770,9 @@ UINT UploadBandwidthThrottler::RunInternal() {
 		    m_SentBytesSinceLastCallOverhead += spentOverhead;
     
             sendLocker.Unlock();
+			if (bNeedMoreData && theApp.m_pUploadDiskIOThread != NULL)
+				theApp.m_pUploadDiskIOThread->SocketNeedsMoreData();
+
         }
 	}
 
@@ -775,4 +790,16 @@ UINT UploadBandwidthThrottler::RunInternal() {
 	sendLocker.Unlock();
 
 	return 0;
+}
+
+void UploadBandwidthThrottler::NewUploadDataAvailable()
+{
+	if (doRun)
+		m_eventNewDataAvailable.SetEvent();
+}
+
+void UploadBandwidthThrottler::SocketAvailable()
+{
+	if (doRun)
+		m_eventSocketAvailable.SetEvent();
 }

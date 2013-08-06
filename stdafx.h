@@ -136,6 +136,9 @@
 #pragma warning(disable:6255) // _alloca indicates failure by raising a stack overflow exception.
 #endif
 
+#if _MSC_VER>=1600
+#pragma warning(disable:4987) //  nonstandard extension used: 'throw (...)'
+#endif
 #if _MSC_VER>=1400
 
 // _CRT_SECURE_NO_DEPRECATE - Disable all warnings for not using "_s" functions.

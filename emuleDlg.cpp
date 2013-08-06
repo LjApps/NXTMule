@@ -107,6 +107,7 @@
 #include "UPnPImplWrapper.h"
 #include <dbt.h>
 #include "XMessageBox.h"
+#include "UploadDiskIOThread.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1231,7 +1232,7 @@ void CemuleDlg::ShowTransferRate(bool bForceAll)
 		szBuff[_countof(szBuff) - 1] = _T('\0');
 		SetWindowText(szBuff);
 	}
-	if (m_pMiniMule && m_pMiniMule->m_hWnd && m_pMiniMule->IsWindowVisible() && !m_pMiniMule->GetAutoClose())
+	if (m_pMiniMule && m_pMiniMule->m_hWnd && m_pMiniMule->IsWindowVisible() && !m_pMiniMule->GetAutoClose() && !m_pMiniMule->IsInInitDialog())
 	{
 		m_pMiniMule->UpdateContent(m_uUpDatarate, m_uDownDatarate);
 	}
@@ -1791,6 +1792,8 @@ void CemuleDlg::OnClose()
 	CSingleLock sLock1(&theApp.hashing_mut); // only one filehash at a time
 	sLock1.Lock(2000);
 
+	theApp.m_pUploadDiskIOThread->EndThread();
+
 	// saving data & stuff
 	theApp.emuledlg->preferenceswnd->m_wndSecurity.DeleteDDB();
 
@@ -1867,9 +1870,10 @@ void CemuleDlg::OnClose()
 	delete theApp.webserver;		theApp.webserver = NULL;
 	delete theApp.m_pPeerCache;		theApp.m_pPeerCache = NULL;
 	delete theApp.m_pFirewallOpener;theApp.m_pFirewallOpener = NULL;
-	delete theApp.uploadBandwidthThrottler; theApp.uploadBandwidthThrottler = NULL;
-	delete theApp.lastCommonRouteFinder; theApp.lastCommonRouteFinder = NULL;
-	delete theApp.m_pUPnPFinder;	theApp.m_pUPnPFinder = NULL;
+	delete theApp.uploadBandwidthThrottler;	theApp.uploadBandwidthThrottler = NULL;
+	delete theApp.lastCommonRouteFinder;	theApp.lastCommonRouteFinder = NULL;
+	delete theApp.m_pUPnPFinder;			theApp.m_pUPnPFinder = NULL;
+	delete theApp.m_pUploadDiskIOThread;	theApp.m_pUploadDiskIOThread = NULL;
 
 	thePrefs.Uninit();
 	theApp.m_app_state = APP_STATE_DONE;
@@ -1881,7 +1885,12 @@ void CemuleDlg::DestroyMiniMule()
 {
 	if (m_pMiniMule)
 	{
-		if (!m_pMiniMule->IsInCallback()) // for safety
+		if (m_pMiniMule->IsInInitDialog())
+		{
+			TRACE("%s - *** Cannot destroy Minimule, it's still in 'OnInitDialog'\n", __FUNCTION__);
+			m_pMiniMule->SetDestroyAfterInitDialog();
+		}
+		else if (!m_pMiniMule->IsInCallback()) // for safety
 		{
 			TRACE("%s - m_pMiniMule->DestroyWindow();\n", __FUNCTION__);
 			m_pMiniMule->DestroyWindow();
@@ -1916,10 +1925,12 @@ void CemuleDlg::OnTrayLButtonUp(CPoint /*pt*/)
 	}
 
 	if (m_pMiniMule) {
-		TRACE("%s - m_pMiniMule->ShowWindow(SW_SHOW);\n", __FUNCTION__);
-		m_pMiniMule->ShowWindow(SW_SHOW);
-		m_pMiniMule->SetForegroundWindow();
-		m_pMiniMule->BringWindowToTop();
+		if (!m_pMiniMule->IsInInitDialog()) {
+			TRACE("%s - m_pMiniMule->ShowWindow(SW_SHOW);\n", __FUNCTION__);
+			m_pMiniMule->ShowWindow(SW_SHOW);
+			m_pMiniMule->SetForegroundWindow();
+			m_pMiniMule->BringWindowToTop();
+		}
 		return;
 	}
 
@@ -1931,9 +1942,16 @@ void CemuleDlg::OnTrayLButtonUp(CPoint /*pt*/)
 			ASSERT( m_pMiniMule == NULL );
 			m_pMiniMule = new CMiniMule(this);
 			m_pMiniMule->Create(CMiniMule::IDD, this);
-			//m_pMiniMule->ShowWindow(SW_SHOW);	// do not explicitly show the window, it will do that for itself when it's ready..
-			m_pMiniMule->SetForegroundWindow();
-			m_pMiniMule->BringWindowToTop();
+			if (m_pMiniMule->GetDestroyAfterInitDialog())
+			{
+				DestroyMiniMule();
+			}
+			else
+			{
+				//m_pMiniMule->ShowWindow(SW_SHOW);	// do not explicitly show the window, it will do that for itself when it's ready..
+				m_pMiniMule->SetForegroundWindow();
+				m_pMiniMule->BringWindowToTop();
+			}
 		}
 		catch(...)
 		{
@@ -2507,7 +2525,7 @@ void CemuleDlg::Localize()
 	ShowTransferRate(true);
 	ShowUserCount();
 	CPartFileConvert::Localize();
-	if (m_pMiniMule)
+	if (m_pMiniMule && !m_pMiniMule->IsInInitDialog())
 		m_pMiniMule->Localize();
 }
 
@@ -4071,7 +4089,7 @@ void CemuleDlg::SetTaskbarIconColor()
 			if (hTheme != NULL)
 			{
 
-				if (!g_xpStyle.GetThemeColor(hTheme, TNP_BACKGROUND, 0, TMT_FILLCOLORHINT, &cr) == S_OK)
+				if (g_xpStyle.GetThemeColor(hTheme, TNP_BACKGROUND, 0, TMT_FILLCOLORHINT, &cr) != S_OK)
 					ASSERT( false );
 				g_xpStyle.CloseThemeData(hTheme);
 			}

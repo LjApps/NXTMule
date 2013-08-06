@@ -47,6 +47,7 @@ public:
 	uint32	size;
 	uint8	opcode;
 	uint8	prot;
+	uint32	uStatsPayLoad; // only for statistics and co., not used within the class itself
 
 protected:
 	bool	m_bSplitted;

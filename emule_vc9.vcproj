@@ -149,7 +149,7 @@
 				AdditionalOptions="/Wall"
 				Optimization="2"
 				AdditionalIncludeDirectories="..\site_config;.;..;..\id3lib\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES;_BETA"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
 				DebugInformationFormat="3"
@@ -700,6 +700,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UploadDiskIOThread.cpp"
+				>
+			</File>
+			<File
 				RelativePath="UploadQueue.cpp"
 				>
 			</File>
@@ -1210,6 +1214,10 @@
 			</File>
 			<File
 				RelativePath="UploadBandwidthThrottler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UploadDiskIOThread.h"
 				>
 			</File>
 			<File
