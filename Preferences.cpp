@@ -642,7 +642,7 @@ void CPreferences::Init()
 				toadd.Trim(L" \t\r\n"); // need to trim '\r' in binary mode
 				if (toadd.IsEmpty())
 					continue;
-				addresses_list.AddHead(toadd);
+				addresses_list.AddTail(toadd);
 			}
 		}
 		catch (CFileException* ex) {

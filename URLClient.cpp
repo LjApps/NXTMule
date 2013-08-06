@@ -141,7 +141,7 @@ bool CUrlClient::SendHttpBlockRequests()
 	if (reqfile == NULL)
 		throw CString(_T("Failed to send block requests - No 'reqfile' attached"));
 
-	CreateBlockRequests(PARTSIZE / EMBLOCKSIZE);
+	CreateBlockRequests(PARTSIZE / EMBLOCKSIZE, PARTSIZE / EMBLOCKSIZE);
 	if (m_PendingBlocks_list.IsEmpty()){
 		SetDownloadState(DS_NONEEDEDPARTS);
         SwapToAnotherFile(_T("A4AF for NNP file. UrlClient::SendHttpBlockRequests()"), true, false, false, NULL, true, true);

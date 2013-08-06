@@ -50,6 +50,7 @@ class CUpDownClient;
 class CPeerCacheFinder;
 class CFirewallOpener;
 class CUPnPImplWrapper;
+class CUploadDiskIOThread;
 
 struct SLogItem;
 
@@ -88,6 +89,7 @@ public:
 	CPeerCacheFinder*	m_pPeerCache;
 	CFirewallOpener*	m_pFirewallOpener;
 	CUPnPImplWrapper*	m_pUPnPFinder;
+	CUploadDiskIOThread* m_pUploadDiskIOThread;
 
 	HANDLE				m_hMutexOneInstance;
 	int					m_iDfltImageListColorFlags;
@@ -169,6 +171,7 @@ public:
 	void		UpdateLargeIconSize();
 	bool		IsXPThemeActive() const;
 	bool		IsVistaThemeActive() const;
+	bool		IsWinSock2Available() const;
 
 	bool		GetLangHelpFilePath(CString& strResult);
 	void		SetHelpFilePath(LPCTSTR pszHelpFilePath);
@@ -217,8 +220,9 @@ protected:
     CTypedPtrList<CPtrList, SLogItem*> m_QueueLog;
     // Elandal:ThreadSafeLogging <--
 
-	uint32 m_dwPublicIP;
-	bool m_bAutoStart;
+	uint32				m_dwPublicIP;
+	bool				m_bAutoStart;
+	WSADATA				m_wsaData;
 
 private:
     UINT     m_wTimerRes;

@@ -434,7 +434,7 @@ void CCreditsThread::InitText()
 	m_arCredits.Add(_T("03:00:eMule"));
 	sTmp.Format(_T("02:01:Version %s"),theApp.m_strCurVersionLong);
 	m_arCredits.Add(sTmp);
-	m_arCredits.Add(_T("01:06:Copyright (C) 2002-2009 Merkur"));
+	m_arCredits.Add(_T("01:06:Copyright (C) 2002-2010 Merkur"));
 	m_arCredits.Add(_T("S:50"));
 	m_arCredits.Add(_T("02:04:Developers"));
 	m_arCredits.Add(_T("S:5"));
@@ -568,7 +568,7 @@ void CCreditsThread::InitText()
 	m_arCredits.Add(_T("S:05"));
 	m_arCredits.Add(_T("01:06:Portugese: Filipe, Luís Claro"));
 	m_arCredits.Add(_T("S:05"));
-	m_arCredits.Add(_T("01:06:Portugese Brasilian: DarthMaul,Brasco"));
+	m_arCredits.Add(_T("01:06:Portugese Brasilian: DarthMaul,Brasco,Ducho"));
 	m_arCredits.Add(_T("S:05"));
 	m_arCredits.Add(_T("01:06:Romanian: Dragos"));
 	m_arCredits.Add(_T("S:05"));

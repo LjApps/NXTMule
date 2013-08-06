@@ -37,6 +37,9 @@ public:
     void QueueForSendingControlPacket(ThrottledControlSocket* socket, bool hasSent = false); // ZZ:UploadBandWithThrottler (UDP)
     void RemoveFromAllQueues(ThrottledControlSocket* socket) { RemoveFromAllQueues(socket, true); }; // ZZ:UploadBandWithThrottler (UDP)
     void RemoveFromAllQueues(ThrottledFileSocket* socket);
+	void NewUploadDataAvailable();
+	void SocketAvailable();
+	HANDLE GetSocketAvailableEvent()			{ return m_eventSocketAvailable; }
 
     void EndThread();
 
@@ -63,6 +66,8 @@ private:
 
     CEvent* threadEndedEvent;
     CEvent* pauseEvent;
+	CEvent m_eventNewDataAvailable;
+	CEvent m_eventSocketAvailable;
 
     uint64 m_SentBytesSinceLastCall;
     uint64 m_SentBytesSinceLastCallOverhead;

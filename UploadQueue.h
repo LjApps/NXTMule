@@ -16,8 +16,22 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #pragma once
 
+struct Requested_Block_Struct;
 class CUpDownClient;
 typedef CTypedPtrList<CPtrList, CUpDownClient*> CUpDownClientPtrList;
+
+struct UploadingToClient_Struct
+{
+	UploadingToClient_Struct()							{ m_bIOError = false; m_bDisableCompression = false; }
+	~UploadingToClient_Struct();
+	CUpDownClient*										m_pClient;
+	CTypedPtrList<CPtrList, Requested_Block_Struct*>	m_BlockRequests_queue;
+	CTypedPtrList<CPtrList, Requested_Block_Struct*>	m_DoneBlocks_list;
+	bool												m_bIOError;
+	bool												m_bDisableCompression;
+	CCriticalSection									m_csBlockListsLock; // don't acquire other locks while having this one in any thread other than UploadDiskIOThread or make sure deadlocks are impossible
+};
+typedef CTypedPtrList<CPtrList, UploadingToClient_Struct*> CUploadingPtrList;
 
 class CUploadQueue
 {
@@ -25,6 +39,8 @@ class CUploadQueue
 public:
 	CUploadQueue();
 	~CUploadQueue();
+
+
 
 	void	Process();
 	void	AddClientToQueue(CUpDownClient* client,bool bIgnoreTimelimit = false);
@@ -34,10 +50,10 @@ public:
 	bool	IsDownloading(CUpDownClient* client)	const {return (uploadinglist.Find(client) != 0);}
 
     void    UpdateDatarates();
-	uint32	GetDatarate();
+	uint32	GetDatarate() const;
     uint32  GetToNetworkDatarate();
 
-	bool	CheckForTimeOver(CUpDownClient* client);
+	bool	CheckForTimeOver(const CUpDownClient* client);
 	int		GetWaitingUserCount() const				{return waitinglist.GetCount();}
 	int		GetUploadQueueLength() const			{return uploadinglist.GetCount();}
 	uint32	GetActiveUploadsCount()	const			{return m_MaxActiveClientsShortTime;}
@@ -45,8 +61,8 @@ public:
 	uint32	GetDatarateForFile(const CSimpleArray<CObject*>& raFiles) const;
 	
 	POSITION GetFirstFromUploadList()				{return uploadinglist.GetHeadPosition();}
-	CUpDownClient* GetNextFromUploadList(POSITION &curpos)	{return uploadinglist.GetNext(curpos);}
-	CUpDownClient* GetQueueClientAt(POSITION &curpos)	{return uploadinglist.GetAt(curpos);}
+	CUpDownClient* GetNextFromUploadList(POSITION &curpos)	{return ((UploadingToClient_Struct*)uploadinglist.GetNext(curpos))->m_pClient;}
+	CUpDownClient* GetQueueClientAt(POSITION &curpos)	{return ((UploadingToClient_Struct*)uploadinglist.GetAt(curpos))->m_pClient;}
 
 	POSITION GetFirstFromWaitingList()				{return waitinglist.GetHeadPosition();}
 	CUpDownClient* GetNextFromWaitingList(POSITION &curpos)	{return waitinglist.GetNext(curpos);}
@@ -55,6 +71,10 @@ public:
 	CUpDownClient*	GetWaitingClientByIP_UDP(uint32 dwIP, uint16 nUDPPort, bool bIgnorePortOnUniqueIP, bool* pbMultipleIPs = NULL);
 	CUpDownClient*	GetWaitingClientByIP(uint32 dwIP);
 	CUpDownClient*	GetNextClient(const CUpDownClient* update);
+
+	UploadingToClient_Struct* GetUploadingClientStructByClient(const CUpDownClient* pClient);
+
+	const CUploadingPtrList& GetUploadListTS(CCriticalSection** outUploadListReadLock); 
 
 	
 	void	DeleteAll();
@@ -68,25 +88,23 @@ public:
     void ReSortUploadSlots(bool force = false);
 
 	CUpDownClientPtrList waitinglist;
-	CUpDownClientPtrList uploadinglist;
-
+	
 protected:
 	void		RemoveFromWaitingQueue(POSITION pos, bool updatewindow);
 	bool		AcceptNewClient(bool addOnNextConnect = false);
 	bool		AcceptNewClient(uint32 curUploadSlots);
 	bool		ForceNewClient(bool allowEmptyWaitingQueue = false);
 	bool		AddUpNextClient(LPCTSTR pszReason, CUpDownClient* directadd = 0);
-	void		UseHighSpeedUploadTimer(bool bEnable);
 	
 	static VOID CALLBACK UploadTimer(HWND hWnd, UINT nMsg, UINT nId, DWORD dwTime);
-	static VOID CALLBACK HSUploadTimer(HWND hWnd, UINT nMsg, UINT nId, DWORD dwTime);
 
 private:
 	void	UpdateMaxClientScore();
 	uint32	GetMaxClientScore()						{return m_imaxscore;}
     void    UpdateActiveClientsInfo(DWORD curTick);
 
-    void InsertInUploadingList(CUpDownClient* newclient);
+	void InsertInUploadingList(CUpDownClient* newclient, bool bNoLocking = false);
+    void InsertInUploadingList(UploadingToClient_Struct* pNewClientUploadStruct, bool bNoLocking = false);
     float GetAverageCombinedFilePrioAndCredit();
 
 
@@ -95,6 +113,11 @@ private:
 		uint32	datalen;
 		DWORD	timestamp;
 	};
+
+	CUploadingPtrList		uploadinglist;
+	// this lock only assumes only the main thread writes the uploadinglist, other threads need to fetch the lock if they want to read (but are not allowed to write)
+	CCriticalSection		m_csUploadListMainThrdWriteOtherThrdsRead; // don't acquire other locks while having this one in any thread other than UploadDiskIOThread or make sure deadlocks are impossible
+
 	CList<uint64> avarage_dr_list;
     CList<uint64> avarage_friend_dr_list;
 	CList<DWORD,DWORD> avarage_tick_list;
@@ -105,7 +128,6 @@ private:
 	// By BadWolf - Accurate Speed Measurement
 
 	UINT_PTR h_timer;
-	UINT_PTR m_hHighSpeedUploadTimer;
 	uint32	successfullupcount;
 	uint32	failedupcount;
 	uint32	totaluploadtime;

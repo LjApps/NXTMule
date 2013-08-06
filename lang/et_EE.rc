@@ -140,9 +140,9 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_IP                  "IP"
+    IDS_IP                  "IP"	//!
     IDS_DESCRIPTION         "Kirjeldus"
-    IDS_PING                "Ping"
+    IDS_PING                "Ping"	//!
     IDS_FILES               "Faile"
     IDS_PREFERENCE          "Eelistus"
     IDS_PRIONOPREF          "Eel. puudub"
@@ -941,7 +941,7 @@ BEGIN
     IDS_PW_VIDEOPLAYER      "Video vaataja"
     IDS_VIDEOBACKUP         "Eelvaade koopia alusel"
     IDS_MYINFO              "Minu info"
-    IDS_ID                  "ID"
+    IDS_ID                  "ID"	//!
     IDS_IDLOW               "MadalID"
     IDS_IDHIGH              "KõrgeID"
     IDS_UPSTATUS            "Olemasolevad osad"
@@ -1449,13 +1449,13 @@ BEGIN
     IDS_TEXTLABELS          "Märgendid"
     IDS_ENABLETEXTLABELS    "Ikooni all"
     IDS_CUSTOMIZETOOLBAR    "Muganda riistariba"
-    IDS_MINBITRATE          "Min. bitrate [kBitti/s]"
+    IDS_MINBITRATE          "Min. bitikiirus [kBitti/s]"
     IDS_KAD_RECHECKFW       "Kontrolli tulemüüri"
     IDS_SHAREDTITLE         "Jagatud ed2k|Kad"
     IDS_FIREWALLED          "Tulemüüriga"
     IDS_KADEMLIA            "Kad"
     IDS_KADCONTACTLAB       "Kontaktid"
-    IDS_KADDISTANCE         "Distants"
+    IDS_KADDISTANCE         "Vahemaa"
     IDS_KEY                 "Võti"
     IDS_NUMBER              "Number"
     IDS_KAD_SEARCHSRC       "Allikate otsing"
@@ -1777,8 +1777,8 @@ BEGIN
     IDS_MODIFYCOLLECTION    "Modifitseeri kogum"
     IDS_VIEWCOLLECTION      "Vaata kogumit"
     IDS_COLL_TEXTFORMAT     "Salvesta kogum liht tekst vormigust"
-    IDS_SEARCHAUTHORCOLLECTION "Otsi Authorite kogumikest"
-    IDS_ERR_DUPL_FILES      "Duplicate shared files: ""%s"" and ""%s"""
+    IDS_SEARCHAUTHORCOLLECTION "Otsi autorite kogumikest"
+    IDS_ERR_DUPL_FILES      "Dubleeritud jagatud failid: ""%s"" ja ""%s"""
     IDS_USS_TRACEROUTEOFTENFAILED 
                             "UploadSpeedSense: Tracerouting failed too many times. Disabling Upload SpeedSense."
     IDS_USS_STARTING        "UploadSpeedSense: Done with preparations. Starting control of upload speed. (First 60 seconds will be in fast reaction mode)"
@@ -1853,7 +1853,7 @@ BEGIN
     IDS_MEDIAINFO_DLLMISSING 
                             "There is no MediaInfo library installed. If you want to get more information about audio/video files in this dialog,\r\ndownload the MediaInfo library from http://sourceforge.net/projects/mediainfo/ and copy the MediaInfo.dll file into\r\neMule's installation folder ""%s"".\r\n"
     IDS_WARNING_WRONGFILEEXTENTION 
-                            "Warning: The file extension of ""%s"" does not match the file extension\r\ntypically used for that file format. You may want to rename the file to\r\nuse one of those file extensions ""%s""\r\nfor properly using or viewing that file format.\r\n"
+                            "Hoiatus: Faili laiend ""%s"" ei sobi faililaiendi\r\nkasutatakse tavaliselt, et faili formaadis. Võite faili ümbernimetamiseks\r\nkasutada ühte neist faililaiendeid ""%s""\r\nnõuetekohaselt kasutamiseks või vaatamiseks seda failivormingut.\r\n"
     IDS_MEDIAINFO_DRMWARNING 
                             "Warning: The file ""%s"" seems to be protected with Digital Rights Management.\r\nYou will most likely not be able to use that file without a license from the originator of that file.\r\n"
     IDS_LOADFILTER_EMTOOLBAR "eMule tööristariba bittrasteri failid"
@@ -1866,8 +1866,8 @@ BEGIN
     IDS_WEB_REMOTE_LINK_NOT_ADDED "Link ei ole lisatud. Vale salasõna."
     IDS_OPTIONS             "Suvandid"
     IDS_ERR_FAILEDTOLOAD    "Luhtunud laadimine %s: %s  "
-    IDS_RUNNINGRESTRICTED   "eMule is running with reduced privileges"
-    IDS_DOWNLOAD_ALPHABETICAL "Download In Alphabetical Order"
+    IDS_RUNNINGRESTRICTED   "eMule töötab vähendatud privileegidega"
+    IDS_DOWNLOAD_ALPHABETICAL "Lae tähestikulises järjekorras"
     IDS_ARCHPREV_ATTRIBINFO "Faili attribuutides sisalduv:\r\n\r\nP\tfail on salasõnaga kaitstud\r\nD\tkataloogis\r\nC\tKommentaar\r\nLx\tPakkimise tase x\r\nM\tcompressed data not completely downloaded yet\r\n<\tfile continued from previous volume\r\n>\tfile continues in next volume\r\n"
     IDS_CONTENT_INFO        "Sisu"
 END
@@ -1909,15 +1909,15 @@ BEGIN
     IDS_FO_PREFBUTTON_NEW   "Ava pordid WinXP SP1 tulemüüris"
     IDS_UPNP_NOSERVICE      "UPnP Device Host service is not running, skipping UPnP setup"
     IDS_DELAYEDBYUPNP       "Connecting to the network is delayed, because UPnP is still busy configuring the port forwardings."
-    IDS_DELAYEDBYUPNP2      "Please wait some seconds, eMule will connect as soon as UPnP finished."
+    IDS_DELAYEDBYUPNP2      "Palun oota mõned sekundit, eMule ühendaub niipea kui UPnP lõpetab."
     IDS_UPNP                "UPnP"
-    IDS_UPNPCLOSEONEXIT     "Remove UPnP port forwardings on exit"
+    IDS_UPNPCLOSEONEXIT     "Eemalda UPnP pordi suunamine väljumisel"
     IDS_UPNPSKIPWANIP       "Skip WAN IP setup"
     IDS_UPNPSKIPWANPPP      "Skip WAN PPP setup"
     IDS_SHAREEMULELABEL     "Jagan emulet teiste arvutitega"
     IDS_SHAREEMULEMULTI     "Igal kasutajal on enda konfrikatsoon ja allalaadimised"
     IDS_SHAREEMULEPUBLIC    "Igalühel on sama konfikatsoon ja allalaadimised"
-    IDS_SHAREEMULEOLD       "Store config and downloads in the program directory"
+    IDS_SHAREEMULEOLD       "Varunda konfiguratsioon ja laadimised programmi kataloogis"
 END
 
 STRINGTABLE 
@@ -1929,14 +1929,14 @@ BEGIN
     IDS_SEARCHSPAMFILTER    "Luba spammi filter otsingu tulemustes"
     IDS_SHOWSMILEYS         "Näita emotikoone"
     IDS_CAPTCHAREQUEST      "In order to avoid spam messages, this user requires you to solve a captcha before you can send him a message. Please enter the letters you see on this image as response:"
-    IDS_CAPTCHAFAILED       "Your response to the captcha was wrong and your message has been ignored. You can request a new captcha by sending a new message."
-    IDS_CAPTCHASOLVED       "You have passed the captcha check and the user has received your message."
-    IDS_USECAPTCHAS         "Require captcha authentication"
+    IDS_CAPTCHAFAILED       "Teie vastus captcha oli vale ja sinu sõnumit on eiratud. Võite taotleda uue captcha saates uue sõnumi."
+    IDS_CAPTCHASOLVED       "Olete läbinud captcha kontrolli ja kasutajale on saadetud sinu sõnum."
+    IDS_USECAPTCHAS         "Nõutud captcha autentimine"
     IDS_BOOTSRAPNODESDAT    "Nodes.dat URL-ist:"
     IDS_DOWNLOADING_NODESDAT_FROM "Laen alla nodes.dat-i %s-st"
     IDS_DOWNLOADING_NODESDAT "Laen alla nodes.dat..."
     IDS_ERR_FAILEDDOWNLOADNODES "Alla laadimine nodes.dat %s-st nurjus"
-    IDS_PREVENTSTANDBY      " Prevent Standby mode while eMule is running"
+    IDS_PREVENTSTANDBY      " Väldi ooterežiimi kui eMule töötab"
     IDS_KADID               "KadID"
     IDS_SEARCHINGFRIENDKAD  "Otsing Kad Network-ist sõprale"
     IDS_FOUND               "leitud"
@@ -1945,53 +1945,53 @@ BEGIN
     IDS_WRN_INCFILE_EXISTS  "Sul on valitud uus kataloog sissetulevate failidele mis pole tühi. Kõik olesmasolevad failid selles kaustas automaatselt jaotatakse eMule boolt."
     IDS_EDITSPAMFILTER      "Muuda spämmi filtrit..."
     IDS_EDITSPAMFILTERCOMMENTS "Muuda spämmi filtrit komentaarides"
-    IDS_WIZZARDOBFUSCATION  "Enable this option if you want to enable protocol obfuscation\n\nIf your ISP tries throttle or block eMule, enabling obfuscation will help to circumvent such restrictions."
+    IDS_WIZZARDOBFUSCATION  "Luba see valik, kui soovite lubada protokolli hämamist\n\nIf your ISP tries throttle or block eMule, enabling obfuscation will help to circumvent such restrictions."
     IDS_BETANAG             "See on beta versioon eMule-st. Palun teata probleemdest ja jälgi regulaarselt uuendustest meie foorumis (http://forum.emule-project.net)."
     IDS_CONFIRMNODESDOWNLOAD 
-                            "Do you want to download and use Kad contacts (nodes.dat) from this address:\n%s ?"
+                            "Kas soovite alla laadida ja kasutada Kad kontaktisi (nodes.dat) Sellelt aadressilt:\n%s ?"
     IDS_AUTOMATIC           "Automaatne"
     IDS_NOTCONNECTEDANY     "Sa pole ühendatud ei serveriga ega ka Kad võrguga!"
-    IDS_ERR_SHARED_DIR      "Failed to read shared directory ""%s"" - %s"
-    IDS_FILE_WARNING_DRM    "The file ""%s"" seems to be protected with Digital Rights Management.\r\n\r\nYou will most likely not be able to use that file without a license from the originator. You should be aware that opening this file will most likely cause your media player to open a web browser which will transfer you automatically to the site of the originator of that file where you will get asked to acquire a license.\r\n\r\nDo you really want to continue opening the file?"
-    IDS_CHECK_FILE_OPEN     "Warn when opening untrusted files"
-    IDS_BOOTABLE            "bootable"
-    IDS_UNSUPPORTEDIMAGE    "unsupported image"
+    IDS_ERR_SHARED_DIR      "Jagatud kataloogi lugemine ebaõnnestus ""%s"" - %s"
+    IDS_FILE_WARNING_DRM    "Fail ""%s"" tundub olevat kaitstud Digital Rights Management.\r\n\r\nSa tõenäoliselt ei saa kasutada seda faili ilma litsentsita. You should be aware that opening this file will most likely cause your media player to open a web browser which will transfer you automatically to the site of the originator of that file where you will get asked to acquire a license.\r\n\r\nDo you really want to continue opening the file?"
+    IDS_CHECK_FILE_OPEN     "Hoiata mitteusaldatava faili avamisel"
+    IDS_BOOTABLE            "buutiv"
+    IDS_UNSUPPORTEDIMAGE    "toetamata tõmmis"
 END
 
 
 STRINGTABLE 
 BEGIN
-    IDS_UNSHARE             "Unshare"
-    IDS_WEBUPNPINCLUDE      "Include port into UPnP setup"
-    IDS_ADDEDON             "Added On"
+    IDS_UNSHARE             "Tühista jagamine"
+    IDS_WEBUPNPINCLUDE      "Kaasa port UPnP seadistus"
+    IDS_ADDEDON             "Lisatud"
     IDS_RESOLVELINKS        "Resolve shell links in shared directories"
 END
 
 
 STRINGTABLE 
 BEGIN
-    IDS_DOWNLOADCOMMANDS    "Download Commands"
-    IDS_CLOSETOOLBAR        "Close Toolbar"
-    IDS_SHOWTOOLBAR         "Show Toolbar"
+    IDS_DOWNLOADCOMMANDS    "Laadimis käsud"
+    IDS_CLOSETOOLBAR        "Sulge tööristariba"
+    IDS_SHOWTOOLBAR         "Näita tööristariba"
     IDS_SEARCH_BADOPERATORCOMBINATION 
                             "You cannot use the first keyword with an OR operator when searching on Kad!\n\nFor example ""Keyword1 OR Keyword2"" is not possible. Try ""Keyword1 AND (Keyword2 OR Keyword3)"" or do multiple searches instead."
-    IDS_DISCOVEREDBY        "Discovered by"
-    IDS_NODES               "Node(s)"
-    IDS_ROUTINGTABLE        "Routing Table"
-    IDS_PROTOCOLVERSION     "Protocol Version"
-    IDS_FOUNDNODESUSEFUL    "Found Nodes (useful)"
-    IDS_NORESPONSE          "No Response"
-    IDS_NOTASKED            "Not Asked"
-    IDS_LOOKUPGRAPH         "Search Details"
-    IDS_AUTOKADLOOKUPGRAPH  "Automatically show active searches"
-    IDS_PAUSEONPREVIEW      "Pause when preview possible"
-    IDS_PREVIEWWITH         "Preview with"
-    IDS_CLOSEEMULE          "Close eMule"
-    IDS_DONOTASKAGAIN       "Don't ask me again"
-    IDS_POPULARITY          "Popularity Rank"
-    IDS_SHOWWIN7TASKBARGOODIES "Enable Windows 7 taskbar effects"
+    IDS_DISCOVEREDBY        "Avastaja"
+    IDS_NODES               "Sõlme(d)"
+    IDS_ROUTINGTABLE        "Marsruutimistabel"
+    IDS_PROTOCOLVERSION     "Protokolli versioon"
+    IDS_FOUNDNODESUSEFUL    "Leitud sõlmed (kasulik)"
+    IDS_NORESPONSE          "Vastus puudub"
+    IDS_NOTASKED            "Ei küsita"
+    IDS_LOOKUPGRAPH         "Otsingu detailid"
+    IDS_AUTOKADLOOKUPGRAPH  "Näita automaatselt aktiivseid otsinguid"
+    IDS_PAUSEONPREVIEW      "Pausi kui eelvaadet on võimalik"
+    IDS_PREVIEWWITH         "Eelvaatlus ..."
+    IDS_CLOSEEMULE          "Sulge eMule"
+    IDS_DONOTASKAGAIN       "Ära küsi uuesti"
+    IDS_POPULARITY          "Populaarsuse tase"
+    IDS_SHOWWIN7TASKBARGOODIES "Luba Windows 7 tööristariba effektid"
     IDS_LANMODE             "LAN Mode"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_OPENPREFINI         "Ava seadistuste.ini"
 END
 
 #endif    // Estonian resources

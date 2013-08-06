@@ -261,7 +261,7 @@ BEGIN
     IDS_QL_RATING           "Derecelendirme"
     IDS_CONNECTINGTO        "%s (%s:%u) sunucusuna baðlanýyor ..."
     IDS_CLIENTS             "Kullanýcýlar"
-    IDS_SEARCH_ANY          "Hepsi"
+    IDS_SEARCH_ANY          "Herhangi"
     IDS_SEARCH_AUDIO        "Ses"
 END
 
@@ -269,7 +269,7 @@ STRINGTABLE
 BEGIN
     IDS_SEARCH_PICS         "Resim"
     IDS_SEARCH_PRG          "Program" //!
-    IDS_SEARCH_VIDEO        "Film"
+    IDS_SEARCH_VIDEO        "Görüntü"
     IDS_SEARCH_CDIMG        "CD-Ýmajý"
     IDS_SEARCH_ARC          "Arþiv"
     IDS_ERR_INVALIDLINK     "Bu ed2k baðlantýsý geçersiz (%s)"
@@ -764,8 +764,8 @@ BEGIN
     IDS_DOWNLOAD_ALPHABETICAL "Alfabetik Sýrada Ýndir"
     IDS_IRC_HASQUIT         "* %s çýktý (%s)"
     IDS_IRC_NOWKNOWNAS      "* %s artýk %s olarak biliniyor"
-    IDS_IRC_SETSMODE        "* %s modu ayarlýyor: %s %s"
-    IDS_IRC_NOTSUPPORTED    "** Bazý desteklenmeyen modlar ayarlandý. Kullanýcý listesini yenilemek için kanaldan çýkýp yeniden girmeniz gerekebilir."
+    IDS_IRC_SETSMODE        "* %s kipi ayarlýyor: %s %s"
+    IDS_IRC_NOTSUPPORTED    "** Bazý desteklenmeyen kipler ayarlandý. Kullanýcý listesini yenilemek için kanaldan çýkýp yeniden girmeniz gerekebilir."
     IDS_IRC_CHANNEL         "Kanal"
     IDS_IRC_NICK            "Takma Ad"
     IDS_IRC_SEND            "Gönder"
@@ -932,9 +932,9 @@ BEGIN
     IDS_IRC_EMULEPROTO_IGNOREINFOMESSAGE "eMule Protokol Mesajlarýný Yoksay"
     IDS_SMARTLOWIDCHECK     "Baðlantýda akýllý DüþükID kontrolü kullan"
     IDS_SF_SRVOCC           "Sunucu Doluluðu: %.2f%%"
-    IDS_3DDEP               "Ýlerleme çubuðu stili"
+    IDS_3DDEP               "Ýlerleme çubuðu biçemi"
     IDS_AUTOTAKEED2KLINKS   "ED2K Baðlantýlarýný sadece çalýþýrken otomatik al"
-    IDS_ADDNEWFILESPAUSED   "Dosyalarý duraklat modunda indirmeye ekle"
+    IDS_ADDNEWFILESPAUSED   "Dosyalarý duraklat kipinde indirmeye ekle"
 END
 
 STRINGTABLE 
@@ -1310,12 +1310,12 @@ BEGIN
     IDS_ERR_DUPL_FILES      "Kopya paylaþýlmýþ dosyalar: ""%s"" ve ""%s"""
     IDS_USS_TRACEROUTEOFTENFAILED 
                             "Gönderme Hýzý Algýlama: Yönlendirerek Ýzleme bir çok kez baþarýsýz oldu. Gönderme Hýzý Algýlama Etkisizleþtiriliyor."
-    IDS_USS_STARTING        "Gönderme Hýzý Algýlama: Hazýrlanma bitti. Gönderme hýzý denetimi baþlatýlýyor. (Ýlk 60 saniye hýzlý tepki modunda olacaktýr)"
+    IDS_USS_STARTING        "Gönderme Hýzý Algýlama: Hazýrlanma bitti. Gönderme hýzý denetimi baþlatýlýyor. (Ýlk 60 saniye hýzlý tepki kipinde olacaktýr)"
     IDS_A4AF                "Kaynak Saptama"
     IDS_MOBILEMULE          "MobileMule" //!
     IDS_ENABLEMM            "MobileMule etkin"
     IDS_AUTOCAT_LABEL       "Otomatik Kat-Belirleme (örnek, | ile ayýrýn)"
-    IDS_SHOWEXTSETTINGS     "Daha fazla denetim göster (Geliþmiþ Denetim modu)"
+    IDS_SHOWEXTSETTINGS     "Daha fazla denetim göster (Geliþmiþ Denetim kipi)"
     IDS_TREEOPTIONS_TRUE    "Doðru"
     IDS_TREEOPTIONS_FALSE   "Yanlýþ"
     IDS_TREEOPTIONS_OK      "TAMAM"
@@ -1350,7 +1350,7 @@ BEGIN
                             "Deðiþtirilen ayarlarýn etkili olmasý için, lütfen eMule'u yeniden baþlatýn!"
     IDS_CREDITSEXPIRED      ", %u istemci silindi (5 ay içinde görülmemiþ)"
     IDS_SOURCESINFO         "%u (Kullanýþlý: %u, NNP: %u); A4AF: %u"
-    IDS_META_DATA           "Meta Verisi"
+    IDS_META_DATA           "Üst Veri"
     IDS_TIMEBEFORE          "(%s önce)"
     IDS_FD_TIMEDATE         "Tarihler"
     IDS_FILEINFORMATION     "Dosya Bilgisi"
@@ -1423,9 +1423,9 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_DYNUP_PINGTOLERANCE "Ping toleransý (en düþük ping %)"
-    IDS_DYNUP_GOINGUPDIVIDER "Yavaþlýðý arttýr"
-    IDS_DYNUP_GOINGDOWNDIVIDER "Yavaþlýðý düþür"
+    IDS_DYNUP_PINGTOLERANCE "Ping toleransý (en düþük ping yüzdesi)"
+    IDS_DYNUP_GOINGUPDIVIDER "Artýþ yavaþlýðý"
+    IDS_DYNUP_GOINGDOWNDIVIDER "Düþüþ yavaþlýðý"
     IDS_DYNUP_NUMBEROFPINGS "Ortalama için azami ping sayýsý"
     IDS_DYNUP_MINUPLOAD     "Ýzin verilmiþ en düþük gönderme hýzý"
     IDS_ESTTIMELEFT         "Tahmini kalan süre:"
@@ -1532,7 +1532,7 @@ BEGIN
     IDS_RAU_FAILED          "eMule'u yetkisiz ""eMule_Güvenli"" kullanýcýsý olarak baþlatma baþarýsýz. Þu anki (""%s"") kullanýcýsýnýn yetkileri saklanýyor."
     IDS_KADCONTACTSREAD     "Dosyadan %u adet baðlantý okundu."
     IDS_ERR_KADCONTACTS     "Baðlantý bulunamadý, lütfen önyükleme yapýn veya nodes.dat dosyasýný indirin."
-    IDS_METATAGS            "Meta Etiket Sayýsý:"
+    IDS_METATAGS            "Üst etiket sayýsý:"
     IDS_FILEFORMAT          "Biçim"
     IDS_UDPREASKS           "UDP Dosya Tkr.Sormasý"
     IDS_DYNUP_PINGTOLERANCE_MS "Ping toleransý (ms)"
@@ -1698,7 +1698,7 @@ BEGIN
     IDS_THELOAD             "Yükleme"
     IDS_PACKSENT            "Gönderilmiþ Paket"
     IDS_RESPONSES           "Cevap"
-    IDS_EXTRACT_META_DATA   "Meta Verisini Çýkart"
+    IDS_EXTRACT_META_DATA   "Üst veriyi çýkart"
     IDS_META_DATA_MEDIADET  "DirectShow (tüm diðer ses/görüntü dosyalarý için)"
     IDS_META_DATA_ID3LIB    "ID3 Kütüphanesi (sadece MPEG ses dosyalarý için)"
 END
@@ -1799,7 +1799,7 @@ BEGIN
     IDS_COLL_TEXTFORMAT     "Koleksiyonu Basit Metin Biçiminde Kaydet"
     IDS_RUNNINGRESTRICTED   "eMule azaltýlmýþ yetkiler ile çalýþýyor"
     IDS_USS_MANUALUPLOADLIMITDETECTED 
-                            "Gönderme Hýzý Algýlama: Seçeneklerde arttýrýlmýþ gönderme sýnýrý saptandý. 60 saniye için hýzlý tepki moduna gidilecek."
+                            "Gönderme Hýzý Algýlama: Seçeneklerde arttýrýlmýþ gönderme sýnýrý saptandý. 60 saniye için hýzlý tepki kipine gidilecek."
     IDS_USS_STATE_PREPARING "Hazýrlanýyor..."
     IDS_USS_STATE_WAITING   "Bekliyor..."
     IDS_USS_STATE_ERROR     "Hata!"
@@ -1867,7 +1867,7 @@ BEGIN
 	IDS_MEDIAINFO_DLLMISSING 
                             "Kurulu MediaInfo kütüphanesi yok. Eðer bu iletide ses/görüntü dosyalarý hakkýnda daha fazla bilgi görmek istiyorsanýz,\r\nhttp://sourceforge.net/projects/mediainfo/ adresinden MediaInfo kütüphane dosyasýný indirin ve eMule'un kurulum\r\nklasörü ""%s"" içine MediaInfo.dll dosyasýný kopyalayýn.\r\n"
 	IDS_WARNING_WRONGFILEEXTENTION 
-                            "Uyarý: ""%s"" dosyasýnýn uzantýsý,\r\ngenellikle bu dosya biçimi için kullanýlan dosya uzantýsý ile uyuþmuyor. Bu dosya biçiminin düzgün olarak görüntülenmesi\r\nya da kullanýmý, ve de bu ""%s"" dosya uzantýlarýndan birini kullanmak için dosya ismini yeniden adlandýrmak\r\nisteyebilirsiniz.\r\n"
+                            "Uyarý: ""%s"" dosyasýnýn uzantýsý,\r\ngenellikle bu dosya biçimi için kullanýlan dosya uzantýsýna uymuyor. Bu dosya biçiminin düzgün olarak görüntülenmesi\r\nya da kullanýmý ve de bu ""%s"" dosya uzantýlarýndan birini kullanmak için dosya ismini yeniden adlandýrmak\r\nisteyebilirsiniz.\r\n"
     IDS_MEDIAINFO_DRMWARNING 
                             "Uyarý: ""%s"" dosyasýnýn Dijital Haklar Yönetimi ile korunduðu görünüyor.\r\nBüyük ihtimalle üreticisinden lisansýný almadan bu dosyayý kullanamayacaksýnýz.\r\n"
     IDS_LOADFILTER_EMTOOLBAR "eMule Araç Çubuðu Bitmap Dosyalarý"
@@ -1994,8 +1994,8 @@ BEGIN
     IDS_DONOTASKAGAIN       "Bana tekrar sorma"
     IDS_POPULARITY          "Popülerlik Derecesi"
     IDS_SHOWWIN7TASKBARGOODIES "Windows 7 görev çubuðu efektleri etkin"
-    IDS_LANMODE             "LAN Modu"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_LANMODE             "LAN Kipi"
+    IDS_OPENPREFINI         "Preferences.ini'yi aç"
 END
 
 #endif    // Turkish resources

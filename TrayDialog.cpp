@@ -276,8 +276,10 @@ void CTrayDialog::OnTimer(UINT nIDEvent)
 {
 	if (nIDEvent == m_uSingleClickTimer)
 	{
-		OnTrayLButtonUp(CPoint(0, 0));
+		TRACE("%s: nIDEvent=%u\n", __FUNCTION__, nIDEvent);
+		// Kill that timer before calling 'OnTrayLButtonUp' which may create the MiniMule window asynchronously!
 		KillSingleClickTimer();
+		OnTrayLButtonUp(CPoint(0, 0));
 	}
 	CDialogMinTrayBtn<CResizableDialog>::OnTimer(nIDEvent);
 }

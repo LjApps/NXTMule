@@ -1824,6 +1824,11 @@ BOOL CDownloadListCtrl::OnCommand(WPARAM wParam, LPARAM /*lParam*/)
 					if (file->CanOpenFile())
 						file->OpenFile();
 					break;
+				case MP_OPENFOLDER:
+					if (selectedCount != 1)
+						break;
+					ShellOpenFile(file->GetPath(), _T("open"));
+					break;
 				case MP_TRY_TO_GET_PREVIEW_PARTS:
 					if (selectedCount > 1)
 						break;
@@ -3074,6 +3079,8 @@ bool CDownloadListCtrl::ReportAvailableCommands(CList<int>& liAvailableCommands)
 				liAvailableCommands.AddTail(MP_OPEN);
 			if (iSelectedItems == 1 && iFilesToPreview == 1)
 				liAvailableCommands.AddTail(MP_PREVIEW);
+			if (iSelectedItems == 1)
+				liAvailableCommands.AddTail(MP_OPENFOLDER);
 			if (iSelectedItems > 0)
 			{
 				liAvailableCommands.AddTail(MP_METINFO);

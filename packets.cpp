@@ -55,6 +55,7 @@ Packet::Packet(uint8 protocol){
 	opcode = 0x00;
 	prot = protocol;
 	m_bPacked = false;
+	uStatsPayLoad = 0;
 }
 
 Packet::Packet(char* header){
@@ -69,6 +70,7 @@ Packet::Packet(char* header){
 	size = head->packetlength-1;
 	opcode = head->command;
 	prot = head->eDonkeyID;
+	uStatsPayLoad = 0;
 }
 
 Packet::Packet(char* pPacketPart, uint32 nSize, bool bLast, bool bFromPartFile){// only used for splitted packets!
@@ -82,6 +84,7 @@ Packet::Packet(char* pPacketPart, uint32 nSize, bool bLast, bool bFromPartFile){
 	size = nSize-6;
 	opcode = 0x00;
 	prot = 0x00;
+	uStatsPayLoad = 0;
 }
 
 Packet::Packet(uint8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPartFile){
@@ -102,6 +105,7 @@ Packet::Packet(uint8 in_opcode, uint32 in_size, uint8 protocol, bool bFromPartFi
 	opcode = in_opcode;
 	size = in_size;
 	prot = protocol;
+	uStatsPayLoad = 0;
 }
 
 Packet::Packet(CMemFile* datafile, uint8 protocol, uint8 ucOpcode){
@@ -118,6 +122,7 @@ Packet::Packet(CMemFile* datafile, uint8 protocol, uint8 ucOpcode){
 	tempbuffer = 0;
 	opcode = ucOpcode;
 	prot = protocol;
+	uStatsPayLoad = 0;
 }
 
 Packet::Packet(const CStringA& str, uint8 ucProtocol, uint8 ucOpcode){
@@ -132,6 +137,7 @@ Packet::Packet(const CStringA& str, uint8 ucProtocol, uint8 ucOpcode){
 	tempbuffer = 0;
 	opcode = ucOpcode;
 	prot = ucProtocol;
+	uStatsPayLoad = 0;
 }
 
 Packet::~Packet(){

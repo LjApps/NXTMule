@@ -1999,7 +1999,7 @@ BEGIN
     IDS_POPULARITY          "Clasament popularitate"
     IDS_SHOWWIN7TASKBARGOODIES "Activare efecte taskbar Windows 7"
     IDS_LANMODE             "Mod LAN"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_OPENPREFINI         "Deschide preferences.ini"
 END
 
 /////////////////////////////////////////////////////////////////////////////

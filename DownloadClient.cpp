@@ -675,15 +675,6 @@ bool CUpDownClient::AddRequestForAnotherFile(CPartFile* file){
 
 void CUpDownClient::ClearDownloadBlockRequests()
 {
-	for (POSITION pos = m_DownloadBlocks_list.GetHeadPosition();pos != 0;){
-		Requested_Block_Struct* cur_block = m_DownloadBlocks_list.GetNext(pos);
-		if (reqfile){
-			reqfile->RemoveBlockFromList(cur_block->StartOffset,cur_block->EndOffset);
-		}
-		delete cur_block;
-	}
-	m_DownloadBlocks_list.RemoveAll();
-
 	for (POSITION pos = m_PendingBlocks_list.GetHeadPosition();pos != 0;){
 		Pending_Block_Struct *pending = m_PendingBlocks_list.GetNext(pos);
 		if (reqfile){
@@ -867,56 +858,66 @@ void CUpDownClient::ProcessHashSet(const uchar* packet, uint32 size, bool bFileI
 	SendStartupLoadReq();
 }
 
-void CUpDownClient::CreateBlockRequests(int iMaxBlocks)
+void CUpDownClient::CreateBlockRequests(int iMinBlocks, int iMaxBlocks)
 {
-	ASSERT( iMaxBlocks >= 1 /*&& iMaxBlocks <= 3*/ );
-	if (m_DownloadBlocks_list.IsEmpty())
-	{
-		uint16 count;
-        if(iMaxBlocks > m_PendingBlocks_list.GetCount()) {
-            count = (uint16)(iMaxBlocks - m_PendingBlocks_list.GetCount());
-        } else {
-            count = 0;
-        }
+	ASSERT( iMinBlocks >= 1 && iMaxBlocks >= iMinBlocks/*&& iMaxBlocks <= 3*/ );
 
-		Requested_Block_Struct** toadd = new Requested_Block_Struct*[count];
-		if (reqfile->GetNextRequestedBlock(this, toadd, &count)){
-			for (UINT i = 0; i < count; i++)
-				m_DownloadBlocks_list.AddTail(toadd[i]);
+	uint16 count;
+	if(iMinBlocks > m_PendingBlocks_list.GetCount())
+	{
+		count = (uint16)(iMaxBlocks - m_PendingBlocks_list.GetCount());
+	}
+	else
+		return;
+
+	Requested_Block_Struct** toadd = new Requested_Block_Struct*[count];
+	if (reqfile->GetNextRequestedBlock(this, toadd, &count)){
+		for (UINT i = 0; i < count; i++)
+		{
+			Pending_Block_Struct* pblock = new Pending_Block_Struct;
+			pblock->block = toadd[i];
+			m_PendingBlocks_list.AddTail(pblock);
+			ASSERT( m_PendingBlocks_list.GetCount() <= iMaxBlocks );
 		}
-		delete[] toadd;
 	}
-
-	while (m_PendingBlocks_list.GetCount() < iMaxBlocks && !m_DownloadBlocks_list.IsEmpty())
-	{
-		Pending_Block_Struct* pblock = new Pending_Block_Struct;
-		pblock->block = m_DownloadBlocks_list.RemoveHead();
-		m_PendingBlocks_list.AddTail(pblock);
-	}
+	delete[] toadd;
 }
 
 void CUpDownClient::SendBlockRequests()
 {
-	if (thePrefs.GetDebugClientTCPLevel() > 0)
-		DebugSend("OP__RequestParts", this, reqfile!=NULL ? reqfile->GetFileHash() : NULL);
-
 	m_dwLastBlockReceived = ::GetTickCount();
 	if (!reqfile)
 		return;
 
     // prevent locking of too many blocks when we are on a slow (probably standby/trickle) slot
-    int blockCount = 3;
+    int blockCount = 3; // max pending block requests
+	int maxBlockDelta = 1; // blockcount - maxBlockDelta = minPendingBlockRequests
     if(IsEmuleClient() && m_byCompatibleClient==0 && reqfile->GetFileSize()-reqfile->GetCompletedSize() <= (uint64)PARTSIZE*4) {
         // if there's less than two chunks left, request fewer blocks for
         // slow downloads, so they don't lock blocks from faster clients.
         // Only trust eMule clients to be able to handle less blocks than three
         if(GetDownloadDatarate() < 600 || GetSessionPayloadDown() < 40*1024) {
             blockCount = 1;
+			maxBlockDelta = 0;
         } else if(GetDownloadDatarate() < 1200) {
             blockCount = 2;
+			maxBlockDelta = 0;
         }
     }
-	CreateBlockRequests(blockCount);
+	else if (GetDownloadDatarate() > 1024*75)
+	{
+		blockCount = 6;
+		maxBlockDelta = 2;
+	}
+
+	CreateBlockRequests(blockCount - maxBlockDelta, blockCount);
+	int queued = 0;
+	for (POSITION pos = m_PendingBlocks_list.GetHeadPosition(); pos != NULL; )
+	{
+		Pending_Block_Struct* pending = m_PendingBlocks_list.GetNext(pos);
+		if (pending->fQueued)
+			queued++;
+	}
 
 	if (m_PendingBlocks_list.IsEmpty()){
 		SendCancelTransfer();
@@ -925,11 +926,35 @@ void CUpDownClient::SendBlockRequests()
 		return;
 	}
 
+	CTypedPtrList<CPtrList, Pending_Block_Struct*>	listToRequest;
 	bool bI64Offsets = false;
-	POSITION pos = m_PendingBlocks_list.GetHeadPosition();
-	for (uint32 i = 0; i != 3; i++){
-		if (pos){
+	for (POSITION pos = m_PendingBlocks_list.GetHeadPosition(); pos != NULL; )
+	{
+		Pending_Block_Struct* pending = m_PendingBlocks_list.GetNext(pos);
+		if (pending->fQueued)
+			continue;
+		ASSERT( pending->block->StartOffset <= pending->block->EndOffset );
+		if (pending->block->StartOffset > 0xFFFFFFFF || pending->block->EndOffset >= 0xFFFFFFFF){
+			bI64Offsets = true;
+			if (!SupportsLargeFiles()){
+				ASSERT( false );
+				SendCancelTransfer();
+				SetDownloadState(DS_ERROR);
+				return;
+			}
+			break;
+		}
+		listToRequest.AddTail(pending);
+		if (listToRequest.GetCount() >= 3)
+			break;
+	}
+	if (!IsEmuleClient() && listToRequest.GetCount() < 3)
+	{
+		for (POSITION pos = m_PendingBlocks_list.GetHeadPosition(); pos != NULL; )
+		{
 			Pending_Block_Struct* pending = m_PendingBlocks_list.GetNext(pos);
+			if (!pending->fQueued)
+				continue;
 			ASSERT( pending->block->StartOffset <= pending->block->EndOffset );
 			if (pending->block->StartOffset > 0xFFFFFFFF || pending->block->EndOffset >= 0xFFFFFFFF){
 				bI64Offsets = true;
@@ -941,7 +966,18 @@ void CUpDownClient::SendBlockRequests()
 				}
 				break;
 			}
+			listToRequest.AddTail(pending);
+			if (listToRequest.GetCount() >= 3)
+				break;
 		}
+	}
+	else if (listToRequest.IsEmpty())
+	{
+		// do not rerequest blocks, at least eMule clients don't need expect this tow ork properly so its
+		// just overhead (and its not protocol standard, but we used to do so since forever)
+		// by adding a range of min to max pending blocks this means we do not send a request after every received
+		// packet anymore
+		return; 	
 	}
 
 	Packet* packet;
@@ -950,24 +986,25 @@ void CUpDownClient::SendBlockRequests()
 		packet = new Packet(OP_REQUESTPARTS_I64, iPacketSize, OP_EMULEPROT);
 		CSafeMemFile data((const BYTE*)packet->pBuffer, iPacketSize);
 		data.WriteHash16(reqfile->GetFileHash());
-		pos = m_PendingBlocks_list.GetHeadPosition();
+		POSITION pos = listToRequest.GetHeadPosition();
 		for (uint32 i = 0; i != 3; i++){
 			if (pos){
-				Pending_Block_Struct* pending = m_PendingBlocks_list.GetNext(pos);
+				Pending_Block_Struct* pending = listToRequest.GetNext(pos);
 				ASSERT( pending->block->StartOffset <= pending->block->EndOffset );
 				//ASSERT( pending->zStream == NULL );
 				//ASSERT( pending->totalUnzipped == 0 );
 				pending->fZStreamError = 0;
 				pending->fRecovered = 0;
+				pending->fQueued = 1;
 				data.WriteUInt64(pending->block->StartOffset);
 			}
 			else
 				data.WriteUInt64(0);
 		}
-		pos = m_PendingBlocks_list.GetHeadPosition();
+		pos = listToRequest.GetHeadPosition();
 		for (uint32 i = 0; i != 3; i++){
 			if (pos){
-				Requested_Block_Struct* block = m_PendingBlocks_list.GetNext(pos)->block;
+				Requested_Block_Struct* block = listToRequest.GetNext(pos)->block;
 				uint64 endpos = block->EndOffset+1;
 				data.WriteUInt64(endpos);
 				if (thePrefs.GetDebugClientTCPLevel() > 0){
@@ -994,24 +1031,25 @@ void CUpDownClient::SendBlockRequests()
 		packet = new Packet(OP_REQUESTPARTS,iPacketSize);
 		CSafeMemFile data((const BYTE*)packet->pBuffer, iPacketSize);
 		data.WriteHash16(reqfile->GetFileHash());
-		pos = m_PendingBlocks_list.GetHeadPosition();
+		POSITION pos = listToRequest.GetHeadPosition();
 		for (uint32 i = 0; i != 3; i++){
 			if (pos){
-				Pending_Block_Struct* pending = m_PendingBlocks_list.GetNext(pos);
+				Pending_Block_Struct* pending = listToRequest.GetNext(pos);
 				ASSERT( pending->block->StartOffset <= pending->block->EndOffset );
 				//ASSERT( pending->zStream == NULL );
 				//ASSERT( pending->totalUnzipped == 0 );
 				pending->fZStreamError = 0;
 				pending->fRecovered = 0;
+				pending->fQueued = 1;
 				data.WriteUInt32((uint32)pending->block->StartOffset);
 			}
 			else
 				data.WriteUInt32(0);
 		}
-		pos = m_PendingBlocks_list.GetHeadPosition();
+		pos = listToRequest.GetHeadPosition();
 		for (uint32 i = 0; i != 3; i++){
 			if (pos){
-				Requested_Block_Struct* block = m_PendingBlocks_list.GetNext(pos)->block;
+				Requested_Block_Struct* block = listToRequest.GetNext(pos)->block;
 				uint64 endpos = block->EndOffset+1;
 				data.WriteUInt32((uint32)endpos);
 				if (thePrefs.GetDebugClientTCPLevel() > 0){
@@ -1035,7 +1073,12 @@ void CUpDownClient::SendBlockRequests()
 	}
 
 	theStats.AddUpDataOverheadFileRequest(packet->size);
-	SendPacket(packet, true);
+	if (thePrefs.GetDebugClientTCPLevel() > 0)
+		DebugSend("OP__RequestParts", this, reqfile!=NULL ? reqfile->GetFileHash() : NULL);
+	SendPacket(packet, true, true);
+	// on highspeed downloads, we want this packet to get out asap, so wakeup the throttler if he is sleeping
+	// because there was nothing to send yet
+	theApp.uploadBandwidthThrottler->NewUploadDataAvailable();
 }
 
 /* Barry - Originally this only wrote to disk when a full 180k block 

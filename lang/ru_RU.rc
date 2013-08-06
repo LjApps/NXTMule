@@ -1992,7 +1992,7 @@ BEGIN
     IDS_POPULARITY          "–ейтинг попул€рности"
     IDS_SHOWWIN7TASKBARGOODIES "¬ключить эффекты панели задач Windows 7"
     IDS_LANMODE             "–ежим LAN"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_OPENPREFINI         "ќткрыть preferences.ini"
 END
 
 #endif    // Russian resources

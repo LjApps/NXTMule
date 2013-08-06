@@ -692,6 +692,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UploadDiskIOThread.cpp"
+				>
+			</File>
+			<File
 				RelativePath="UploadQueue.cpp"
 				>
 			</File>
@@ -1202,6 +1206,10 @@
 			</File>
 			<File
 				RelativePath="UploadBandwidthThrottler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UploadDiskIOThread.h"
 				>
 			</File>
 			<File

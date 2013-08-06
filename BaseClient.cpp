@@ -292,10 +292,7 @@ CUpDownClient::~CUpDownClient(){
 	delete[] m_abyUpPartStatus;
 	m_abyUpPartStatus = NULL;
 	
-	ClearUploadBlockRequests();
-
-	for (POSITION pos = m_DownloadBlocks_list.GetHeadPosition();pos != 0;)
-		delete m_DownloadBlocks_list.GetNext(pos);
+	FlushSendBlocks();
 	
 	for (POSITION pos = m_RequestedFiles_list.GetHeadPosition();pos != 0;)
 		delete m_RequestedFiles_list.GetNext(pos);
@@ -1216,23 +1213,6 @@ bool CUpDownClient::Disconnected(LPCTSTR pszReason, bool bFromSocket)
 		theApp.uploadqueue->RemoveFromUploadQueue(this, CString(_T("CUpDownClient::Disconnected: ")) + pszReason);
 	}
 
-	// 28-Jun-2004 [bc]: re-applied this patch which was in 0.30b-0.30e. it does not seem to solve the bug but
-	// it does not hurt either...
-	if (m_BlockRequests_queue.GetCount() > 0 || m_DoneBlocks_list.GetCount()){
-		// Although this should not happen, it seems(?) to happens sometimes. The problem we may run into here is as follows:
-		//
-		// 1.) If we do not clear the block send requests for that client, we will send those blocks next time the client
-		// gets an upload slot. But because we are starting to send any available block send requests right _before_ the
-		// remote client had a chance to prepare to deal with them, the first sent blocks will get dropped by the client.
-		// Worst thing here is, because the blocks are zipped and can therefore only be uncompressed when the first block
-		// was received, all of those sent blocks will create a lot of uncompress errors at the remote client.
-		//
-		// 2.) The remote client may have already received those blocks from some other client when it gets the next
-		// upload slot.
-        DebugLogWarning(_T("Disconnected client with non empty block send queue; %s reqs: %s doneblocks: %s"), DbgGetClientInfo(), m_BlockRequests_queue.GetCount() > 0 ? _T("true") : _T("false"), m_DoneBlocks_list.GetCount() ? _T("true") : _T("false"));
-		ClearUploadBlockRequests();
-	}
-
 	if (GetDownloadState() == DS_DOWNLOADING){
 		ASSERT( m_nConnectingState == CCS_NONE );
 		if (m_ePeerCacheDownState == PCDS_WAIT_CACHE_REPLY || m_ePeerCacheDownState == PCDS_DOWNLOADING)
@@ -1508,7 +1488,7 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon, bool bNoCallbacks, CRuntime
 
 		// Is any callback available?
 		if (!( (SupportsDirectUDPCallback() && thePrefs.GetUDPPort() != 0 && GetConnectIP() != 0) // Direct Callback
-			|| (HasValidBuddyID() && Kademlia::CKademlia::IsConnected()) // Kad Callback
+			|| (HasValidBuddyID() && Kademlia::CKademlia::IsConnected() && ((GetBuddyIP() && GetBuddyPort()) || reqfile != NULL)) // Kad Callback
 			|| theApp.serverconnect->IsLocalServer(GetServerIP(), GetServerPort()) )) // Server Callback
 		{
 			// Nope
@@ -1586,7 +1566,7 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon, bool bNoCallbacks, CRuntime
 		theApp.serverconnect->SendPacket(packet);
 		return true;
 	}
-	else if (HasValidBuddyID() && Kademlia::CKademlia::IsConnected())
+	else if (HasValidBuddyID() && Kademlia::CKademlia::IsConnected() && ((GetBuddyIP() && GetBuddyPort()) || reqfile != NULL))
 	{
 		m_nConnectingState = CCS_KADCALLBACK;
 		if( GetBuddyIP() && GetBuddyPort())
@@ -1604,7 +1584,7 @@ bool CUpDownClient::TryToConnect(bool bIgnoreMaxCon, bool bNoCallbacks, CRuntime
 			theApp.clientudp->SendPacket(packet, GetBuddyIP(), GetBuddyPort(), false, NULL, true, 0);
 			SetDownloadState(DS_WAITCALLBACKKAD);
 		}
-		else
+		else if (reqfile != NULL)
 		{
 			// I don't think we should ever have a buddy without its IP (anymore), but nevertheless let the functionality in
 			//Create search to find buddy.
@@ -2497,8 +2477,6 @@ void CUpDownClient::AssertValid() const
 	(void)requpfileid;
     (void)m_lastRefreshedULDisplay;
 	m_AvarageUDR_list.AssertValid();
-	m_BlockRequests_queue.AssertValid();
-	m_DoneBlocks_list.AssertValid();
 	m_RequestedFiles_list.AssertValid();
 	ASSERT( m_nDownloadState >= DS_DOWNLOADING && m_nDownloadState <= DS_NONE );
 	(void)m_cDownAsked;
@@ -2526,7 +2504,6 @@ void CUpDownClient::AssertValid() const
 	m_AvarageDDR_list.AssertValid();
 	(void)m_nSumForAvgUpDataRate;
 	m_PendingBlocks_list.AssertValid();
-	m_DownloadBlocks_list.AssertValid();
 	(void)s_StatusBar;
 	ASSERT( m_nChatstate >= MS_NONE && m_nChatstate <= MS_UNABLETOCONNECT );
 	(void)m_strFileComment;
@@ -2767,10 +2744,13 @@ CString CUpDownClient::GetUploadStateDisplayString() const
 			strState = GetResString(IDS_CONNECTING);
 			break;
 		case US_UPLOADING:
-            if(GetPayloadInBuffer() == 0 && GetNumberOfRequestedBlocksInQueue() == 0 && thePrefs.IsExtControlsEnabled()) {
+			// GetNumberOfRequestedBlocksInQueue is no longer available and retrieving it would cause quite some extra load
+			// (either due to thread syncing or due to adding redunant extra varts just for this function), so given that
+			// "stalled, waiting for disk" should happen like never, it is removed for now
+            if(GetPayloadInBuffer() == 0 && /*GetNumberOfRequestedBlocksInQueue() == 0 &&*/ thePrefs.IsExtControlsEnabled()) {
 				strState = GetResString(IDS_US_STALLEDW4BR);
-            } else if(GetPayloadInBuffer() == 0 && thePrefs.IsExtControlsEnabled()) {
-				strState = GetResString(IDS_US_STALLEDREADINGFDISK);
+            /*} else if(GetPayloadInBuffer() == 0 && thePrefs.IsExtControlsEnabled()) {
+				strState = GetResString(IDS_US_STALLEDREADINGFDISK);*/
             } else if(GetSlotNumber() <= theApp.uploadqueue->GetActiveUploadsCount()) {
 				strState = GetResString(IDS_TRANSFERRING);
             } else {

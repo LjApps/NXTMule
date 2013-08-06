@@ -2004,7 +2004,7 @@ BEGIN
     IDS_POPULARITY          "Popularidade"
     IDS_SHOWWIN7TASKBARGOODIES "Activar efectos da barra de tarefas de Windows 7"
     IDS_LANMODE             "Modo LAN"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_OPENPREFINI         "Abrir preferences.ini"
 END
 
 #endif    // Galego: 0x56, 0x1 resources

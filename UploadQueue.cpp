@@ -87,15 +87,12 @@ CUploadQueue::CUploadQueue()
     friendDatarate = 0;
 
     m_dwLastResortedUploadSlots = 0;
-	m_hHighSpeedUploadTimer = NULL;
 	m_bStatisticsWaitingListDirty = true;
 }
 
 CUploadQueue::~CUploadQueue(){
 	if (h_timer)
 		KillTimer(0,h_timer);
-	if (m_hHighSpeedUploadTimer)
-		UseHighSpeedUploadTimer(false);
 }
 
 /**
@@ -174,14 +171,29 @@ CUpDownClient* CUploadQueue::FindBestClientInQueue()
 	    return waitinglist.GetAt(toadd);
 }
 
-void CUploadQueue::InsertInUploadingList(CUpDownClient* newclient) 
+void CUploadQueue::InsertInUploadingList(CUpDownClient* newclient, bool bNoLocking) 
+{	
+	UploadingToClient_Struct* pNewClientUploadStruct = new UploadingToClient_Struct;
+	pNewClientUploadStruct->m_pClient = newclient;
+	InsertInUploadingList(pNewClientUploadStruct, bNoLocking);
+}
+
+void CUploadQueue::InsertInUploadingList(UploadingToClient_Struct* pNewClientUploadStruct, bool bNoLocking)
 {
 	//Lets make sure any client that is added to the list has this flag reset!
-	newclient->m_bAddNextConnect = false;
+	pNewClientUploadStruct->m_pClient->m_bAddNextConnect = false;
     // Add it last
-    theApp.uploadBandwidthThrottler->AddToStandardList(uploadinglist.GetCount(), newclient->GetFileUploadSocket());
-	uploadinglist.AddTail(newclient);
-    newclient->SetSlotNumber(uploadinglist.GetCount());
+    theApp.uploadBandwidthThrottler->AddToStandardList(uploadinglist.GetCount(), pNewClientUploadStruct->m_pClient->GetFileUploadSocket());
+	
+	if (bNoLocking)
+		uploadinglist.AddTail(pNewClientUploadStruct);
+	else
+	{
+		m_csUploadListMainThrdWriteOtherThrdsRead.Lock();
+		uploadinglist.AddTail(pNewClientUploadStruct);
+		m_csUploadListMainThrdWriteOtherThrdsRead.Unlock();
+	}
+	pNewClientUploadStruct->m_pClient->SetSlotNumber(uploadinglist.GetCount());
 }
 
 bool CUploadQueue::AddUpNextClient(LPCTSTR pszReason, CUpDownClient* directadd){
@@ -236,7 +248,7 @@ bool CUploadQueue::AddUpNextClient(LPCTSTR pszReason, CUpDownClient* directadd){
 	newclient->SetUpStartTime();
 	newclient->ResetSessionUp();
 
-    InsertInUploadingList(newclient);
+    InsertInUploadingList(newclient, false);
 
     m_nLastStartUpload = ::GetTickCount();
 	
@@ -333,18 +345,56 @@ void CUploadQueue::Process() {
 	POSITION pos = uploadinglist.GetHeadPosition();
 	while(pos != NULL){
         // Get the client. Note! Also updates pos as a side effect.
-		CUpDownClient* cur_client = uploadinglist.GetNext(pos);
+		UploadingToClient_Struct* pCurClientStruct = uploadinglist.GetNext(pos);
+		CUpDownClient* cur_client = pCurClientStruct->m_pClient;
 		if (thePrefs.m_iDbgHeap >= 2)
 			ASSERT_VALID(cur_client);
 		//It seems chatting or friend slots can get stuck at times in upload.. This needs looked into..
-		if (!cur_client->socket)
+		if (cur_client->socket == NULL)
 		{
 			RemoveFromUploadQueue(cur_client, _T("Uploading to client without socket? (CUploadQueue::Process)"));
 			if(cur_client->Disconnected(_T("CUploadQueue::Process"))){
 				delete cur_client;
 			}
-		} else {
-            cur_client->SendBlockData();
+		}
+		else
+		{
+			cur_client->UpdateUploadingStatisticsData();
+			if (pCurClientStruct->m_bIOError)
+			{
+				RemoveFromUploadQueue(cur_client, _T("IO/Other Error while creating datapacket (see earlier log entries)"), true);
+			}
+			if (CheckForTimeOver(cur_client))
+			{
+				RemoveFromUploadQueue(cur_client, _T("Completed transfer"), true);
+				cur_client->SendOutOfPartReqsAndAddToWaitingQueue();
+			}
+
+			// check if the fileid of the topmost blockrequest matches with out current uploadfile, otherwise the IO thread will
+			// wait for us (only for this client of course) to fix it for crossthread sync reasons
+			CSingleLock lockBlockLists(&pCurClientStruct->m_csBlockListsLock, TRUE);
+			ASSERT( lockBlockLists.IsLocked() );
+			// be careful what functions to call while having locks, RemoveFromUploadQueue could for example lead to a deadlock here
+			// because it tries to get the uploadlistlock, while the IO thread tries to fetch the uploadlistlock and then the blocklistlock
+			if (!pCurClientStruct->m_BlockRequests_queue.IsEmpty() 
+				&& md4cmp(((Requested_Block_Struct*)pCurClientStruct->m_BlockRequests_queue.GetHead())->FileID, cur_client->GetUploadFileID()) != 0)
+			{
+				Requested_Block_Struct* pHeadBlock = pCurClientStruct->m_BlockRequests_queue.GetHead();
+				if (md4cmp(pHeadBlock->FileID, cur_client->GetUploadFileID()) != 0)
+				{
+					uchar aucNewID[16];
+					md4cpy(aucNewID, pHeadBlock->FileID);
+					
+					lockBlockLists.Unlock();
+					
+					CKnownFile* pCurrentUploadFile = theApp.sharedfiles->GetFileByID(aucNewID);
+					if (pCurrentUploadFile != NULL)
+						cur_client->SetUploadFileID(pCurrentUploadFile);
+					else
+						RemoveFromUploadQueue(cur_client, _T("Requested FileID in blockrequest not found in sharedfiles"), true);
+				}
+			}
+			lockBlockLists.Unlock();
         }
 	}
 
@@ -366,11 +416,6 @@ void CUploadQueue::Process() {
         avarage_friend_dr_list.RemoveHead();
         avarage_tick_list.RemoveHead();
     }
-
-	if (GetDatarate() > HIGHSPEED_UPLOADRATE_START && m_hHighSpeedUploadTimer == 0)
-		UseHighSpeedUploadTimer(true);
-	else if (GetDatarate() < HIGHSPEED_UPLOADRATE_END && m_hHighSpeedUploadTimer != 0)
-		UseHighSpeedUploadTimer(false);
 };
 
 bool CUploadQueue::AcceptNewClient(bool addOnNextConnect)
@@ -717,17 +762,26 @@ bool CUploadQueue::RemoveFromUploadQueue(CUpDownClient* client, LPCTSTR pszReaso
     uint32 slotCounter = 1;
 	for (POSITION pos = uploadinglist.GetHeadPosition();pos != 0;){
         POSITION curPos = pos;
-        CUpDownClient* curClient = uploadinglist.GetNext(pos);
-		if (client == curClient){
+        UploadingToClient_Struct* curClientStruct = uploadinglist.GetNext(pos);
+		if (client == curClientStruct->m_pClient){
 			if (updatewindow)
 				theApp.emuledlg->transferwnd->GetUploadList()->RemoveClient(client);
 
 			if (thePrefs.GetLogUlDlEvents())
-                AddDebugLogLine(DLP_DEFAULT, true,_T("Removing client from upload list: %s Client: %s Transferred: %s SessionUp: %s QueueSessionPayload: %s In buffer: %s Req blocks: %i File: %s"), pszReason==NULL ? _T("") : pszReason, client->DbgGetClientInfo(), CastSecondsToHM( client->GetUpStartTimeDelay()/1000), CastItoXBytes(client->GetSessionUp(), false, false), CastItoXBytes(client->GetQueueSessionPayloadUp(), false, false), CastItoXBytes(client->GetPayloadInBuffer()), client->GetNumberOfRequestedBlocksInQueue(), (theApp.sharedfiles->GetFileByID(client->GetUploadFileID())?theApp.sharedfiles->GetFileByID(client->GetUploadFileID())->GetFileName():_T("")));
+			{
+                AddDebugLogLine(DLP_DEFAULT, true,_T("Removing client from upload list: %s Client: %s Transferred: %s SessionUp: %s QueueSessionPayload: %s In buffer: %s Req blocks: %i File: %s")
+				, pszReason==NULL ? _T("") : pszReason, client->DbgGetClientInfo(), CastSecondsToHM( client->GetUpStartTimeDelay()/1000)
+				, CastItoXBytes(client->GetSessionUp(), false, false), CastItoXBytes(client->GetQueueSessionPayloadUp(), false, false), CastItoXBytes(client->GetPayloadInBuffer()), curClientStruct->m_BlockRequests_queue.GetCount()
+				, (theApp.sharedfiles->GetFileByID(client->GetUploadFileID())?theApp.sharedfiles->GetFileByID(client->GetUploadFileID())->GetFileName():_T("")));
+			}
             client->m_bAddNextConnect = false;
-			uploadinglist.RemoveAt(curPos);
 
-            bool removed = theApp.uploadBandwidthThrottler->RemoveFromStandardList(client->socket);
+			m_csUploadListMainThrdWriteOtherThrdsRead.Lock();
+			uploadinglist.RemoveAt(curPos);
+			m_csUploadListMainThrdWriteOtherThrdsRead.Unlock();
+			delete curClientStruct; // m_csBlockListsLock.Lock();
+            
+			bool removed = theApp.uploadBandwidthThrottler->RemoveFromStandardList(client->socket);
             bool pcRemoved = theApp.uploadBandwidthThrottler->RemoveFromStandardList((CClientReqSocket*)client->m_pPCUpSocket);
 			(void)removed;
 			(void)pcRemoved;
@@ -747,14 +801,13 @@ bool CUploadQueue::RemoveFromUploadQueue(CUpDownClient* client, LPCTSTR pszReaso
             }
 			theApp.clientlist->AddTrackClient(client); // Keep track of this client
 			client->SetUploadState(US_NONE);
-			client->ClearUploadBlockRequests();
 			client->SetCollectionUploadSlot(false);
 
             m_iHighestNumberOfFullyActivatedSlotsSinceLastCall = 0;
 
 			result = true;
         } else {
-            curClient->SetSlotNumber(slotCounter);
+            curClientStruct->m_pClient->SetSlotNumber(slotCounter);
             slotCounter++;
         }
 	}
@@ -800,7 +853,8 @@ void CUploadQueue::UpdateMaxClientScore()
 	}
 }
 
-bool CUploadQueue::CheckForTimeOver(CUpDownClient* client){
+bool CUploadQueue::CheckForTimeOver(const CUpDownClient* client)
+{
 	//If we have nobody in the queue, do NOT remove the current uploads..
 	//This will save some bandwidth and some unneeded swapping from upload/queue/upload..
 	if ( waitinglist.IsEmpty() || client->GetFriendSlot() )
@@ -853,7 +907,10 @@ bool CUploadQueue::CheckForTimeOver(CUpDownClient* client){
 
 void CUploadQueue::DeleteAll(){
 	waitinglist.RemoveAll();
-	uploadinglist.RemoveAll();
+	m_csUploadListMainThrdWriteOtherThrdsRead.Lock();
+	while (!uploadinglist.IsEmpty())
+		delete uploadinglist.RemoveHead();
+	m_csUploadListMainThrdWriteOtherThrdsRead.Unlock();
     // PENDING: Remove from UploadBandwidthThrottler as well!
 }
 
@@ -1085,7 +1142,8 @@ void CUploadQueue::UpdateDatarates() {
     }
 }
 
-uint32 CUploadQueue::GetDatarate() {
+uint32 CUploadQueue::GetDatarate() const
+{
     return datarate;
 }
 
@@ -1104,16 +1162,18 @@ void CUploadQueue::ReSortUploadSlots(bool force) {
 
         theApp.uploadBandwidthThrottler->Pause(true);
 
-    	CTypedPtrList<CPtrList, CUpDownClient*> tempUploadinglist;
+    	CUploadingPtrList tempUploadinglist;
 
         // Remove all clients from uploading list and store in tempList
-        POSITION ulpos = uploadinglist.GetHeadPosition();
+        m_csUploadListMainThrdWriteOtherThrdsRead.Lock();
+		POSITION ulpos = uploadinglist.GetHeadPosition();
         while (ulpos != NULL) {
             POSITION curpos = ulpos;
             uploadinglist.GetNext(ulpos);
 
             // Get and remove the client from upload list.
-		    CUpDownClient* cur_client = uploadinglist.GetAt(curpos);
+			UploadingToClient_Struct* pCurClientStruct = uploadinglist.GetAt(curpos);
+			CUpDownClient* cur_client = pCurClientStruct->m_pClient;
 
             uploadinglist.RemoveAt(curpos);
 
@@ -1121,59 +1181,17 @@ void CUploadQueue::ReSortUploadSlots(bool force) {
             theApp.uploadBandwidthThrottler->RemoveFromStandardList(cur_client->socket);
             theApp.uploadBandwidthThrottler->RemoveFromStandardList((CClientReqSocket*)cur_client->m_pPCUpSocket);
 
-            tempUploadinglist.AddTail(cur_client);
+            tempUploadinglist.AddTail(pCurClientStruct);
         }
 
         // Remove one at a time from temp list and reinsert in correct position in uploading list
-        POSITION tempPos = tempUploadinglist.GetHeadPosition();
-        while(tempPos != NULL) {
-            POSITION curpos = tempPos;
-            tempUploadinglist.GetNext(tempPos);
+		while (!tempUploadinglist.IsEmpty())
+			 InsertInUploadingList(tempUploadinglist.RemoveHead(), true);
 
-            // Get and remove the client from upload list.
-		    CUpDownClient* cur_client = tempUploadinglist.GetAt(curpos);
-
-            tempUploadinglist.RemoveAt(curpos);
-
-            // This will insert in correct place
-            InsertInUploadingList(cur_client);
-        }
+		m_csUploadListMainThrdWriteOtherThrdsRead.Unlock();
 
         theApp.uploadBandwidthThrottler->Pause(false);
     }
-}
-
-void  CUploadQueue::UseHighSpeedUploadTimer(bool bEnable)
-{
-	if (!bEnable)
-	{
-		if (m_hHighSpeedUploadTimer != 0)
-		{
-			KillTimer(0, m_hHighSpeedUploadTimer);
-			m_hHighSpeedUploadTimer = 0;
-		}
-	}
-	else
-	{
-		if (m_hHighSpeedUploadTimer == 0)
-			VERIFY( (m_hHighSpeedUploadTimer = SetTimer(0 ,0 , 1, HSUploadTimer)) != 0 );
-	}
-	DebugLog(_T("%s HighSpeedUploadTimer"), bEnable ? _T("Enabled") : _T("Disabled"));
-}
-
-VOID CALLBACK CUploadQueue::HSUploadTimer(HWND /*hwnd*/, UINT /*uMsg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/)
-{
-	// this timer is called every millisecond
-	// all we do is feed the uploadslots with data, which is normally done only every 100ms with the big timer
-	// the counting, checks etc etc are all done on the normal timer
-	// the biggest effect comes actually from the BigBuffer parameter on CreateNextBlockPackage, 
-	// but beeing able to fetch a request packet up to 1/10 sec earlier gives also a slight speedbump
-	for (POSITION pos = theApp.uploadqueue->uploadinglist.GetHeadPosition(); pos != NULL;)
-	{
-		CUpDownClient* cur_client = theApp.uploadqueue->uploadinglist.GetNext(pos);
-		if (cur_client->socket != NULL)
-            cur_client->CreateNextBlockPackage(true);
-	}
 }
 
 uint32 CUploadQueue::GetWaitingUserForFileCount(const CSimpleArray<CObject*>& raFiles, bool bOnlyIfChanged)
@@ -1200,7 +1218,7 @@ uint32 CUploadQueue::GetDatarateForFile(const CSimpleArray<CObject*>& raFiles) c
 	uint32 nResult = 0;
 	for (POSITION pos = uploadinglist.GetHeadPosition(); pos != 0; )
 	{
-		const CUpDownClient* cur_client = uploadinglist.GetNext(pos);
+		const CUpDownClient* cur_client = ((UploadingToClient_Struct*)uploadinglist.GetNext(pos))->m_pClient;
 		for (int i = 0; i < raFiles.GetSize(); i++)
 		{
 			if (md4cmp(((CKnownFile*)raFiles[i])->GetFileHash(), cur_client->GetUploadFileID()) == 0)
@@ -1208,4 +1226,37 @@ uint32 CUploadQueue::GetDatarateForFile(const CSimpleArray<CObject*>& raFiles) c
 		}
 	}
 	return nResult;
+}
+
+const CUploadingPtrList& CUploadQueue::GetUploadListTS(CCriticalSection** outUploadListReadLock)
+{
+	ASSERT( *outUploadListReadLock == NULL );
+	*outUploadListReadLock = &m_csUploadListMainThrdWriteOtherThrdsRead;
+	return uploadinglist;
+}
+
+UploadingToClient_Struct* CUploadQueue::GetUploadingClientStructByClient(const CUpDownClient* pClient)
+{
+	for (POSITION pos = uploadinglist.GetHeadPosition(); pos != 0; )
+	{
+		UploadingToClient_Struct* pCurClientStruct = uploadinglist.GetNext(pos);
+		if (pCurClientStruct->m_pClient == pClient)
+			return pCurClientStruct;
+	}
+	return NULL;	
+}
+
+UploadingToClient_Struct::~UploadingToClient_Struct()
+{
+	m_pClient->FlushSendBlocks();
+
+	m_csBlockListsLock.Lock();
+	for (POSITION pos = m_BlockRequests_queue.GetHeadPosition();pos != 0;)
+		delete m_BlockRequests_queue.GetNext(pos);
+	m_BlockRequests_queue.RemoveAll();
+	
+	for (POSITION pos = m_DoneBlocks_list.GetHeadPosition();pos != 0;)
+		delete m_DoneBlocks_list.GetNext(pos);
+	m_DoneBlocks_list.RemoveAll();
+	m_csBlockListsLock.Unlock();
 }

@@ -72,6 +72,7 @@
 #include "HelpIDs.h"
 #include "UPnPImplWrapper.h"
 #include "VisualStylesXP.h"
+#include "UploadDiskIOThread.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -445,6 +446,42 @@ void __cdecl __AfxSocketTerm()
 #error "You are using an MFC version which may require a special version of the above function!"
 #endif
 
+BOOL InitWinsock2(WSADATA *lpwsaData) 
+{  
+_AFX_SOCK_STATE* pState = _afxSockState.GetData();
+if (pState->m_pfnSockTerm == NULL)
+	{
+	// initialize Winsock library
+	WSADATA wsaData;
+	if (lpwsaData == NULL)
+		lpwsaData = &wsaData;
+	WORD wVersionRequested = MAKEWORD(2, 2);
+	int nResult = WSAStartup(wVersionRequested, lpwsaData);
+	if (nResult != 0)
+		return FALSE;
+	if (LOBYTE(lpwsaData->wVersion) != 2 || HIBYTE(lpwsaData->wVersion) != 2)
+		{
+		WSACleanup();
+		return FALSE;
+		}
+	// setup for termination of sockets
+	pState->m_pfnSockTerm = &AfxSocketTerm;
+	}
+#ifndef _AFXDLL
+	//BLOCK: setup maps and lists specific to socket state
+	{
+	_AFX_SOCK_THREAD_STATE* pState = _afxSockThreadState;
+	if (pState->m_pmapSocketHandle == NULL)
+		pState->m_pmapSocketHandle = new CMapPtrToPtr;
+	if (pState->m_pmapDeadSockets == NULL)
+		pState->m_pmapDeadSockets = new CMapPtrToPtr;
+	if (pState->m_plistSocketNotifications == NULL)
+		pState->m_plistSocketNotifications = new CPtrList;
+	}
+#endif
+return TRUE;
+}
+
 // CemuleApp Initialisierung
 
 BOOL CemuleApp::InitInstance()
@@ -547,10 +584,15 @@ BOOL CemuleApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-	if (!AfxSocketInit())
+	memset(&m_wsaData,0,sizeof(WSADATA));
+	if (!InitWinsock2(&m_wsaData))
 	{
-		AfxMessageBox(GetResString(IDS_SOCKETS_INIT_FAILED));
-		return FALSE;
+		memset(&m_wsaData,0,sizeof(WSADATA));
+		if (!AfxSocketInit(&m_wsaData))
+		{
+			AfxMessageBox(GetResString(IDS_SOCKETS_INIT_FAILED));
+			return FALSE;
+		}
 	}
 #if _MFC_VER==0x0700 || _MFC_VER==0x0710 || _MFC_VER==0x0800 || _MFC_VER==0x0900
 	atexit(__AfxSocketTerm);
@@ -697,6 +739,7 @@ BOOL CemuleApp::InitInstance()
 	mmserver = new CMMServer();
 	scheduler = new CScheduler();
 	m_pPeerCache = new CPeerCacheFinder();
+	m_pUploadDiskIOThread = new CUploadDiskIOThread();
 	
 	thePerfLog.Startup();
 	dlg.DoModal();
@@ -2267,4 +2310,9 @@ bool CemuleApp::IsVistaThemeActive() const
 {
 	// TRUE: If a Vista (or better) style is active
 	return theApp.m_ullComCtrlVer >= MAKEDLLVERULL(6,16,0,0) && g_xpStyle.IsThemeActive() && g_xpStyle.IsAppThemed();
+}
+
+bool CemuleApp::IsWinSock2Available() const
+{
+	return LOBYTE(m_wsaData.wVersion) == 2 && HIBYTE(m_wsaData.wVersion ) == 2;
 }

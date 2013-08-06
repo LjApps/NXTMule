@@ -3397,22 +3397,41 @@ BOOL CPartFile::PerformFileComplete()
 	}
 	free(newfilename);
 
-	DWORD dwMoveResult;
-	if ((dwMoveResult = MoveCompletedPartFile(strPartfilename, strNewname, this)) != ERROR_SUCCESS)
+	bool bFirstTry = true;
+	DWORD dwMoveResult = (uint32)(-1);
+	while (dwMoveResult != ERROR_SUCCESS)
 	{
-		theApp.QueueLogLine(true,GetResString(IDS_ERR_COMPLETIONFAILED) + _T(" - \"%s\": ") + GetErrorMessage(dwMoveResult), GetFileName(), strNewname);
-		// If the destination file path is too long, the default system error message may not be helpful for user to know what failed.
-		if (strNewname.GetLength() >= MAX_PATH)
-			theApp.QueueLogLine(true,GetResString(IDS_ERR_COMPLETIONFAILED) + _T(" - \"%s\": Path too long"),GetFileName(), strNewname);
+		if ((dwMoveResult = MoveCompletedPartFile(strPartfilename, strNewname, this)) != ERROR_SUCCESS)
+		{
+			if (dwMoveResult == ERROR_SHARING_VIOLATION && thePrefs.GetWindowsVersion() < _WINVER_2K_ && bFirstTry)
+			{
+				// The UploadDiskIOThread might have an open handle to this file due to ongoing uploads
+				// On old Windows versions this might result in a sharing violation (for new version we have FILE_SHARE_DELETE)
+				// So wait a few seconds and try again. Due to the lock we set, the UploadThread will close the file ASAP
+				bFirstTry = false;
+				theApp.QueueDebugLogLine(false, _T("Sharing violation while finishing partfile, might be due to ongoing upload. Locked and trying again soon. File %s")
+					, GetFileName());
+				Sleep(5000); // we can sleep here, because we are threaded
+				continue;
+			}
+			else
+			{
+				theApp.QueueLogLine(true,GetResString(IDS_ERR_COMPLETIONFAILED) + _T(" - \"%s\": ") + GetErrorMessage(dwMoveResult), GetFileName(), strNewname);
+				// If the destination file path is too long, the default system error message may not be helpful for user to know what failed.
+				if (strNewname.GetLength() >= MAX_PATH)
+					theApp.QueueLogLine(true,GetResString(IDS_ERR_COMPLETIONFAILED) + _T(" - \"%s\": Path too long"),GetFileName(), strNewname);
 
-		paused = true;
-		stopped = true;
-		SetStatus(PS_ERROR);
-		m_bCompletionError = true;
-		SetFileOp(PFOP_NONE);
-		if (theApp.emuledlg && theApp.emuledlg->IsRunning())
-			VERIFY( PostMessage(theApp.emuledlg->m_hWnd, TM_FILECOMPLETED, FILE_COMPLETION_THREAD_FAILED, (LPARAM)this) );
-		return FALSE;
+				paused = true;
+				stopped = true;
+				SetStatus(PS_ERROR);
+				m_bCompletionError = true;
+				SetFileOp(PFOP_NONE);
+				if (theApp.emuledlg && theApp.emuledlg->IsRunning())
+					VERIFY( PostMessage(theApp.emuledlg->m_hWnd, TM_FILECOMPLETED, FILE_COMPLETION_THREAD_FAILED, (LPARAM)this) );
+				return FALSE;
+			}
+		}
+		break;
 	}
 
 	UncompressFile(strNewname, this);
@@ -4694,6 +4713,11 @@ uint32 CPartFile::WriteToBuffer(uint64 transize, const BYTE *data, uint64 start,
 
 	if (gaplist.IsEmpty())
 		FlushBuffer(true);
+
+	// We rather prefer to flush the buffer on our timer, but if we get over our limit too far (highspeed upload), we need
+	// to flush here in order to not eat up too much memory and use too much time on the bufferlist
+	if (m_nTotalBufferData > thePrefs.GetFileBufferSize()*2)
+			FlushBuffer();
 
 	// Return the length of data written to the buffer
 	return lenData;

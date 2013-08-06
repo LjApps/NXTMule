@@ -1959,8 +1959,8 @@ BEGIN
     IDS_DONOTASKAGAIN       "œÌê— «“ „‰ ‰Å—”"
     IDS_POPULARITY          "— »Â „Õ»Ê»Ì "
     IDS_SHOWWIN7TASKBARGOODIES "›⁄«· ò—œ‰ Ã·ÊÂ ‘Ì‘Â «Ì  ”ò »«— ÊÌ‰œÊ“ 7"
-    IDS_LANMODE             "LAN Mode"
-    IDS_OPENPREFINI         "Open preferences.ini"
+    IDS_LANMODE             "œ— Õ«·  ‘»òÂ « ’«· „Õ·Ì LAN"
+    IDS_OPENPREFINI         "»«“ ò—œ‰ preferences.ini"
 END
 
 #endif

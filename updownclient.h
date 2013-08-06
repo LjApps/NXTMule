@@ -236,19 +236,15 @@ public:
 	void 			ClearWaitStartTime();
 	uint32			GetWaitTime() const								{ return m_dwUploadTime - GetWaitStartTime(); }
 	bool			IsDownloading() const							{ return (m_nUploadState == US_UPLOADING); }
-	bool			HasBlocks() const								{ return !m_BlockRequests_queue.IsEmpty(); }
-    UINT            GetNumberOfRequestedBlocksInQueue() const       { return m_BlockRequests_queue.GetCount(); }
 	UINT			GetDatarate() const								{ return m_nUpDatarate; }	
 	UINT			GetScore(bool sysvalue, bool isdownloading = false, bool onlybasevalue = false) const;
-	void			AddReqBlock(Requested_Block_Struct* reqblock);
-	void			CreateNextBlockPackage(bool bBigBuffer = false);
+	void			AddReqBlock(Requested_Block_Struct* reqblock, bool bSignalIOThread);
 	uint32			GetUpStartTimeDelay() const						{ return ::GetTickCount() - m_dwUploadTime; }
 	void 			SetUpStartTime()								{ m_dwUploadTime = ::GetTickCount(); }
 	void			SendHashsetPacket(const uchar* pData, uint32 nSize, bool bFileIdentifiers);
 	const uchar*	GetUploadFileID() const							{ return requpfileid; }
 	void			SetUploadFileID(CKnownFile* newreqfile);
-	UINT			SendBlockData();
-	void			ClearUploadBlockRequests();
+	uint32			UpdateUploadingStatisticsData();
 	void			SendRankingInfo();
 	void			SendCommentInfo(/*const*/ CKnownFile *file);
 	void			AddRequestCount(const uchar* fileid);
@@ -276,8 +272,10 @@ public:
 						m_nCurSessionDown = m_nTransferredDown;
                         m_nCurSessionPayloadDown = 0;
 					}
-	UINT			GetQueueSessionPayloadUp() const				{ return m_nCurQueueSessionPayloadUp; }
-    UINT			GetPayloadInBuffer() const						{ return m_addedPayloadQueueSession - GetQueueSessionPayloadUp(); }
+	UINT			GetQueueSessionPayloadUp() const				{ return m_nCurQueueSessionPayloadUp; } // Data uploaded/transmitted
+	UINT			GetQueueSessionUploadAdded() const				{ return m_addedPayloadQueueSession; } // Data put into uploadbuffers
+    UINT			GetPayloadInBuffer() const						{ return m_addedPayloadQueueSession - m_nCurQueueSessionPayloadUp; }
+	void			SetQueueSessionUploadAdded(UINT uVal)			{ m_addedPayloadQueueSession = uVal; }
 
 	bool			ProcessExtendedInfo(CSafeMemFile* packet, CKnownFile* tempreqfile);
 	uint16			GetUpPartCount() const							{ return m_nUpPartCount; }
@@ -287,6 +285,7 @@ public:
 					}
 	uint8*			GetUpPartStatus() const							{ return m_abyUpPartStatus; }
     float           GetCombinedFilePrioAndCredit();
+	uint8			GetDataCompressionVersion() const				{ return m_byDataCompVer; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Download
@@ -316,7 +315,7 @@ public:
 	void			ProcessHashSet(const uchar* data, UINT size, bool bFileIdentifiers);
 	void			ProcessAcceptUpload();
 	bool			AddRequestForAnotherFile(CPartFile* file);
-	void			CreateBlockRequests(int iMaxBlocks);
+	void			CreateBlockRequests(int iMinBlocks, int iMaxBlocks);
 	virtual void	SendBlockRequests();
 	virtual bool	SendHttpBlockRequests();
 	virtual void	ProcessBlockPacket(const uchar* packet, UINT size, bool packed, bool bI64Offsets);
@@ -493,8 +492,6 @@ protected:
 	void	Init();
 	bool	ProcessHelloTypePacket(CSafeMemFile* data);
 	void	SendHelloTypePacket(CSafeMemFile* data);
-	void	CreateStandartPackets(byte* data, UINT togo, Requested_Block_Struct* currentblock, bool bFromPF = true);
-	void	CreatePackedPackets(byte* data, UINT togo, Requested_Block_Struct* currentblock, bool bFromPF = true);
 	void	SendFirewallCheckUDPRequest();
 	void	SendHashSetRequest();
 
@@ -598,8 +595,6 @@ protected:
 		UINT	datalen;
 		DWORD	timestamp;
 	};
-	CTypedPtrList<CPtrList, Requested_Block_Struct*> m_BlockRequests_queue;
-	CTypedPtrList<CPtrList, Requested_Block_Struct*> m_DoneBlocks_list;
 	CTypedPtrList<CPtrList, Requested_File_Struct*>	 m_RequestedFiles_list;
 
 	//////////////////////////////////////////////////////////
@@ -689,7 +684,6 @@ protected:
 		 m_fSupportsFileIdent : 1; // 0 bits left
 	UINT m_fHashsetRequestingAICH : 1; // 31 bits left
 	CTypedPtrList<CPtrList, Pending_Block_Struct*>	 m_PendingBlocks_list;
-	CTypedPtrList<CPtrList, Requested_Block_Struct*> m_DownloadBlocks_list;
 
     bool    m_bSourceExchangeSwapped; // ZZ:DownloadManager
     DWORD   lastSwapForSourceExchangeTick; // ZZ:DownloadManaager

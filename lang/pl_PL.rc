@@ -1562,7 +1562,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_KAD_STOREKW         "Zachowaj s³owo klucz"
+    IDS_KAD_STOREKW         "Zachowaj s³owo kluczowe"
     IDS_KAD_UNKNOWN         "Nieznane"
     IDS_SRV_TCPCOMPR        "kompresja TCP"
     IDS_KADSEARCHLAB        "Aktualne poszukiwania"
@@ -1947,28 +1947,28 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_DOWNLOADCOMMANDS    "Download Commands"
-    IDS_CLOSETOOLBAR        "Close Toolbar"
-    IDS_SHOWTOOLBAR         "Show Toolbar"
+    IDS_DOWNLOADCOMMANDS    "Polecenia pobrania"
+    IDS_CLOSETOOLBAR        "Zamknij pasek narzêdzi"
+    IDS_SHOWTOOLBAR         "Poka¿ pasek narzêdzi"
     IDS_SEARCH_BADOPERATORCOMBINATION 
-                            "You cannot use the first keyword with an OR operator when searching on Kad!\n\nFor example ""Keyword1 OR Keyword2"" is not possible. Try ""Keyword1 AND (Keyword2 OR Keyword3)"" or do multiple searches instead."
-    IDS_DISCOVEREDBY        "Discovered by"
-    IDS_NODES               "Node(s)"
-    IDS_ROUTINGTABLE        "Routing Table"
-    IDS_PROTOCOLVERSION     "Protocol Version"
-    IDS_FOUNDNODESUSEFUL    "Found Nodes (useful)"
-    IDS_NORESPONSE          "No Response"
-    IDS_NOTASKED            "Not Asked"
-    IDS_LOOKUPGRAPH         "Search Details"
-    IDS_AUTOKADLOOKUPGRAPH  "Automatically show active searches"
-    IDS_PAUSEONPREVIEW      "Pause when preview possible"
-    IDS_PREVIEWWITH         "Preview with"
-    IDS_CLOSEEMULE          "Close eMule"
-    IDS_DONOTASKAGAIN       "Don't ask me again"
-    IDS_POPULARITY          "Popularity Rank"
-    IDS_SHOWWIN7TASKBARGOODIES "Enable Windows 7 taskbar effects"
-    IDS_LANMODE             "LAN Mode"
-    IDS_OPENPREFINI         "Open preferences.ini"
+                            "Nie mo¿esz u¿ywaæ pierwszego s³owa kluczowego z operatorem OR, szukaj¹c w sieci Kad!\n\nDla przyk³adu, ""Keyword1 OR Keyword2"" nie jest mo¿liwe. Spróbuj wtedy ""Keyword1 AND (Keyword2 OR Keyword3)"" lub przeprowadŸ wielokrotne wyszukiwania."
+    IDS_DISCOVEREDBY        "Odkryte przez"
+    IDS_NODES               "Wêz³y"
+    IDS_ROUTINGTABLE        "Tabela routingu"
+    IDS_PROTOCOLVERSION     "Wersja protoko³u"
+    IDS_FOUNDNODESUSEFUL    "Znalezione wêz³y (przydatne)"
+    IDS_NORESPONSE          "brak odpowiedzi"
+    IDS_NOTASKED            "nie proszony"
+    IDS_LOOKUPGRAPH         "Szczegó³y wyszukiwania"
+    IDS_AUTOKADLOOKUPGRAPH  "automatyczne pokazuj aktywne wyszukiwania"
+    IDS_PAUSEONPREVIEW      "Pauzuj gdy dostêpny podgl¹d"
+    IDS_PREVIEWWITH         "Podgl¹d z"
+    IDS_CLOSEEMULE          "Zamknij eMule"
+    IDS_DONOTASKAGAIN       "Nie pytaj mnie wiêcej"
+    IDS_POPULARITY          "Ranking popularnoœci"
+    IDS_SHOWWIN7TASKBARGOODIES "W³¹cz efekty pasku zadañ Windows 7"
+    IDS_LANMODE             "Tryb LAN"
+    IDS_OPENPREFINI         "Otwórz preferences.ini"
 END
 
 #endif    // Polish resources

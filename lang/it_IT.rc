@@ -558,6 +558,7 @@ BEGIN
     IDS_PW_USS              "Scarica automaticamente la Lista Server all'avvio"
     IDS_PW_MISC             "Opzioni varie"
     IDS_PW_TRAY             "Minimizza in Trayicon"
+    IDS_LANMODE             "Modalità LAN"
     IDS_PW_PROMPT           "Chiedi Conferma prima di Uscire"
 END
 
@@ -823,6 +824,7 @@ END
 
 STRINGTABLE 
 BEGIN
+    IDS_OPENPREFINI         "Apri 'preferences.ini'"
     IDS_RECOVER_SINGLE      "Recupero Archivio: 1 File recuperato."
     IDS_RECOVER_MULTIPLE    "Recupero Archivio: %u File recuperati."
     IDS_ATTEMPTING_RECOVERY "Recupero Archivio: iniziato..."
@@ -1319,7 +1321,7 @@ BEGIN
     IDS_STATS_TIMESTATS     "Durata Statistiche"
     IDS_STATS_AVGANDPROJ    "Medie Programmate"
     IDS_STATS_TIMESINCERESET "Tempo dall'Ultimo Azzeramento: %s"
-    IDS_CRYPT_INITFAILED    "Inizializzazione chiave di cifratura fallita - identificazione sicura disabilitata"
+    IDS_CRYPT_INITFAILED    "Inizializzazione chiave di cifratura fallita - connessione sicura disabilitata.\nAControllare i permessi di scrittura sulla cartella config."
     IDS_CD_IDENT            "Identificazione:"
     IDS_IDENTOK             "Corretta"
     IDS_IDENTFAILED         "Non valida"
@@ -1931,17 +1933,14 @@ BEGIN
     IDS_UNSUPPORTEDIMAGE    "immagine non supportata"
 END
 
-
 STRINGTABLE 
 BEGIN
     IDS_UNSHARE             "Non condividere"
     IDS_WEBUPNPINCLUDE      "Includi la porta nelle impostazioni dell'UPnP"
     IDS_ADDEDON             "Aggiunto"
     IDS_RESOLVELINKS        "Risolvi i Link nelle cartelle condivise"
-END
-
-STRINGTABLE 
-BEGIN
+    IDS_PAUSEONPREVIEW      "Metti in Pausa quando è possibile l'Anteprima"
+    IDS_PREVIEWWITH         "Anteprima con"
     IDS_DOWNLOADCOMMANDS    "Comandi di Download"
     IDS_CLOSETOOLBAR        "Chiudi Barra degli Strumenti"
     IDS_SHOWTOOLBAR         "Mostra Barra degli Strumenti"
@@ -1953,17 +1952,17 @@ BEGIN
     IDS_PROTOCOLVERSION     "Versione di Protocollo"
     IDS_FOUNDNODESUSEFUL    "Nodi Trovati (utili)"
     IDS_NORESPONSE          "Nessuna Risposta"
+END
+
+STRINGTABLE 
+BEGIN
     IDS_NOTASKED            "Non Chiesto"
     IDS_LOOKUPGRAPH         "Dettagli di Ricerca"
     IDS_AUTOKADLOOKUPGRAPH  "Visualizza automaticamente le ricerche attive"
-    IDS_PAUSEONPREVIEW      "Metti in Pausa quando è possibile l'Anteprima"
-    IDS_PREVIEWWITH         "Anteprima con"
     IDS_CLOSEEMULE          "Chiudi eMule"
     IDS_DONOTASKAGAIN       "Non chiedermelo nuovamente"
     IDS_POPULARITY          "Livello di Popolarità"
     IDS_SHOWWIN7TASKBARGOODIES "Abilita gli effetti della barra strumenti di Windows 7"
-    IDS_LANMODE             "Modalità LAN"
-    IDS_OPENPREFINI         "Open preferences.ini"
 END
 
 #endif    // Italian (Italy) resources
