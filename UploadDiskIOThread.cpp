@@ -47,6 +47,7 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CUploadDiskIOThread, CWinThread)
 
 CUploadDiskIOThread::CUploadDiskIOThread(void)
+	:m_eventAsyncIOFinished(FALSE, TRUE)
 {
 	m_bRun = false;
 	ASSERT( theApp.uploadqueue != NULL );
@@ -127,7 +128,7 @@ UINT CUploadDiskIOThread::RunInternal()
 			else
 			{
 				int nError = GetLastError();
-				if (nError != ERROR_IO_PENDING)
+				if (nError != ERROR_IO_PENDING && nError != ERROR_IO_INCOMPLETE)
 				{
 					theApp.QueueDebugLogLineEx(LOG_ERROR, _T("IO Error: GetOverlappedResult: %s"), GetErrorMessage(nError));
 					m_listPendingIO.RemoveAt(pos1);

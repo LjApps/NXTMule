@@ -149,7 +149,7 @@
 				AdditionalOptions="/Wall"
 				Optimization="2"
 				AdditionalIncludeDirectories="..\site_config;.;..;..\id3lib\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES;_BETA"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES;_DEVBUILD"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
 				DebugInformationFormat="3"

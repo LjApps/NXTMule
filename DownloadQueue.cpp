@@ -515,7 +515,7 @@ bool CDownloadQueue::CheckAndAddSource(CPartFile* sender,CUpDownClient* source){
 	// filter sources which are incompatible with our encryption setting (one requires it, and the other one doesn't supports it)
 	if ( (source->RequiresCryptLayer() && (!thePrefs.IsClientCryptLayerSupported() || !source->HasValidHash())) || (thePrefs.IsClientCryptLayerRequired() && (!source->SupportsCryptLayer() || !source->HasValidHash())))
 	{
-#if defined(_DEBUG) || defined(_BETA)
+#if defined(_DEBUG) || defined(_BETA) || defined(_DEVBUILD)
 		//if (thePrefs.GetDebugSourceExchange()) // TODO: Uncomment after testing
 			AddDebugLogLine(DLP_DEFAULT, false, _T("Rejected source because CryptLayer-Setting (Obfuscation) was incompatible for file %s : %s"), sender->GetFileName(), source->DbgGetClientInfo() );
 #endif
@@ -601,7 +601,7 @@ bool CDownloadQueue::CheckAndAddKnownSource(CPartFile* sender,CUpDownClient* sou
 	// filter sources which are incompatible with our encryption setting (one requires it, and the other one doesn't supports it)
 	if ( (source->RequiresCryptLayer() && (!thePrefs.IsClientCryptLayerSupported() || !source->HasValidHash())) || (thePrefs.IsClientCryptLayerRequired() && (!source->SupportsCryptLayer() || !source->HasValidHash())))
 	{
-#if defined(_DEBUG) || defined(_BETA)
+#if defined(_DEBUG) || defined(_BETA) || defined(_DEVBUILD)
 		//if (thePrefs.GetDebugSourceExchange()) // TODO: Uncomment after testing
 			AddDebugLogLine(DLP_DEFAULT, false, _T("Rejected source because CryptLayer-Setting (Obfuscation) was incompatible for file %s : %s"), sender->GetFileName(), source->DbgGetClientInfo() );
 #endif

@@ -658,7 +658,7 @@ BOOL CemuleDlg::OnInitDialog()
 
 // modders: dont remove or change the original versioncheck! (additionals are ok)
 void CemuleDlg::DoVersioncheck(bool manual) {
-
+#ifndef _DEVBUILD
 	if (!manual && thePrefs.GetLastVC()!=0) {
 		CTime last(thePrefs.GetLastVC());
 		struct tm tmTemp;
@@ -679,6 +679,7 @@ void CemuleDlg::DoVersioncheck(bool manual) {
 #endif
 		AddLogLine(true,GetResString(IDS_NEWVERSIONFAILED));
 	}
+#endif
 }
 
 void CALLBACK CemuleDlg::StartupTimer(HWND /*hwnd*/, UINT /*uiMsg*/, UINT /*idEvent*/, DWORD /*dwTime*/)
@@ -1255,8 +1256,8 @@ void CemuleDlg::ShowPing()
             }
 			else
                 buffer.SetString(lastPing.state);
-        }
-		statusbar->SetText(buffer, SBarChatMsg, 0);
+			statusbar->SetText(buffer, SBarUSS, 0);
+        };
     }
 }
 
@@ -1317,20 +1318,20 @@ void CemuleDlg::SetStatusBarPartsSize()
 	if(thePrefs.IsDynUpEnabled())
 	{
         if (thePrefs.IsDynUpUseMillisecondPingTolerance())
-            ussShift = 45;
+            ussShift = 65;
         else
-            ussShift = 90;
+            ussShift = 110;
 	}
-	
-	int aiWidths[5] =
-	{ 
-		rect.right - 675 - ussShift,
-		rect.right - 440 - ussShift,
-		rect.right - 250 - ussShift,
-		rect.right -  25 - ussShift,
-		-1
-	};
-	statusbar->SetParts(_countof(aiWidths), aiWidths);
+		int aiWidths[6] =
+		{ 
+			rect.right - 675 - ussShift,
+			rect.right - 440 - ussShift,
+			rect.right - 250 - ussShift,
+			rect.right - ussShift - 25,
+			rect.right -  25, 
+			-1
+		};
+		statusbar->SetParts(_countof(aiWidths), aiWidths);
 }
 
 void CemuleDlg::OnSize(UINT nType, int cx, int cy)
