@@ -394,7 +394,7 @@ CemuleApp::CemuleApp(LPCTSTR lpszAppName)
 	// create a string version (e.g. "0.30a")
 	ASSERT( CemuleApp::m_nVersionUpd + 'a' <= 'f' );
 	m_strCurVersionLongDbg.Format(_T("%u.%u%c.%u"), CemuleApp::m_nVersionMjr, CemuleApp::m_nVersionMin, _T('a') + CemuleApp::m_nVersionUpd, CemuleApp::m_nVersionBld);
-#ifdef _DEBUG
+#if defined( _DEBUG) || defined(_DEVBUILD)
 	m_strCurVersionLong = m_strCurVersionLongDbg;
 #else
 	m_strCurVersionLong.Format(_T("%u.%u%c"), CemuleApp::m_nVersionMjr, CemuleApp::m_nVersionMin, _T('a') + CemuleApp::m_nVersionUpd);
@@ -404,7 +404,10 @@ CemuleApp::CemuleApp(LPCTSTR lpszAppName)
 	m_strCurVersionLong += _T(" DEBUG");
 #endif
 #ifdef _BETA
-	m_strCurVersionLong += _T(" BETA3");
+	m_strCurVersionLong += _T(" BETA");
+#endif
+#ifdef _DEVBUILD
+	m_strCurVersionLong += _T(" DEVBUILD");
 #endif
 
 	// create the protocol version number
@@ -510,7 +513,7 @@ BOOL CemuleApp::InitInstance()
 	///////////////////////////////////////////////////////////////////////////
 	// Install crash dump creation
 	//
-#ifndef _BETA
+#if !(defined(_BETA) && defined(_DEVBUILD))
 	if (GetProfileInt(_T("eMule"), _T("CreateCrashDump"), 0))
 #endif
 		theCrashDumper.Enable(_T("eMule ") + m_strCurVersionLongDbg, true, thePrefs.GetMuleDirectory(EMULE_CONFIGDIR));

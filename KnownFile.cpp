@@ -1223,7 +1223,7 @@ Packet*	CKnownFile::CreateSrcInfoPacket(const CUpDownClient* forClient, uint8 by
 		// TODO: remove check next version, as it uses ressources and shouldn't be necessary
 		if (!theApp.clientlist->IsValidClient(cur_src))
 		{
-#ifdef _BETA
+#if defined(_BETA) || defined(_DEVBUILD)
 			throw new CUserException();
 #endif
 			ASSERT( false );

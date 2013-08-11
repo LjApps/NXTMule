@@ -241,7 +241,7 @@ int CUPnPImplMiniLib::CStartDiscoveryThread::Run()
 		return 0;
 
 	bool bSucceeded = false;
-#if !(defined(_DEBUG) || defined(_BETA))
+#if !(defined(_DEBUG) || defined(_BETA) || defined(_DEVBUILD))
 	try
 #endif
 	{
@@ -309,7 +309,7 @@ int CUPnPImplMiniLib::CStartDiscoveryThread::Run()
 		if (bSucceeded && m_pOwner->m_nTCPWebPort != 0)
 			OpenPort(m_pOwner->m_nTCPWebPort, true, m_pOwner->m_achLanIP, m_pOwner->m_bCheckAndRefresh); // don't fail if only the webinterface port fails for some reason
 	}
-#if !(defined(_DEBUG) || defined(_BETA))
+#if !(defined(_DEBUG) || defined(_BETA) || defined(_DEVBUILD))
 	catch(...)
 	{
 		DebugLogError(_T("Unknown Exception in CUPnPImplMiniLib::CStartDiscoveryThread::Run()"));

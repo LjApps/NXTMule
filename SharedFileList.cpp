@@ -430,7 +430,7 @@ CSharedFileList::~CSharedFileList(){
 	// SLUGFILLER: SafeHash
 	delete m_keywords;
 
-#ifdef _BETA
+#if defined(_BETA) || defined(_DEVBUILD)
 	// On Beta builds we created a testfile, delete it when closing eMule
 	CString tempDir = thePrefs.GetMuleDirectory(EMULE_INCOMINGDIR);
 	if (tempDir.Right(1)!=_T("\\"))
@@ -497,7 +497,7 @@ void CSharedFileList::FindSharedFiles()
 	if (tempDir.Right(1)!=_T("\\"))
 		tempDir+=_T("\\");
 
-#ifdef _BETA
+#if defined(_BETA) || defined(_DEVBUILD)
 	// In Betaversion we create a testfile which is published in order to make testing easier
 	// by allowing to easily find files which are published and shared by "new" nodes
 	CStdioFile f;
