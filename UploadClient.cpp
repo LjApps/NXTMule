@@ -82,9 +82,6 @@ void CUpDownClient::DrawUpStatusBar(CDC* dc, RECT* rect, bool onlygreyrect, bool
 		filesize = (uint64)(PARTSIZE * (uint64)m_nUpPartCount);
 	// wistily: UpStatusFix
 
-	UploadingToClient_Struct* pUpClientStruct = theApp.uploadqueue->GetUploadingClientStructByClient(this);
-	ASSERT( pUpClientStruct != NULL );
-
     if(filesize > (uint64)0) {
 	    s_UpStatusBar.SetFileSize(filesize); 
 	    s_UpStatusBar.SetHeight(rect->bottom - rect->top); 
@@ -95,29 +92,34 @@ void CUpDownClient::DrawUpStatusBar(CDC* dc, RECT* rect, bool onlygreyrect, bool
 			    if (m_abyUpPartStatus[i])
 				    s_UpStatusBar.FillRange(PARTSIZE*(uint64)(i), PARTSIZE*(uint64)(i+1), crBoth);
 	    }
-		CSingleLock lockBlockLists(&pUpClientStruct->m_csBlockListsLock, TRUE);
-		ASSERT( lockBlockLists.IsLocked() );
-	    const Requested_Block_Struct* block;
-	    if (!pUpClientStruct->m_BlockRequests_queue.IsEmpty())
+		UploadingToClient_Struct* pUpClientStruct = theApp.uploadqueue->GetUploadingClientStructByClient(this);
+		ASSERT( pUpClientStruct != NULL );
+		if (pUpClientStruct != NULL)
 		{
-		    block = pUpClientStruct->m_BlockRequests_queue.GetHead();
-		    if(block){
-			    uint32 start = (uint32)(block->StartOffset/PARTSIZE);
-			    s_UpStatusBar.FillRange((uint64)start*PARTSIZE, (uint64)(start+1)*PARTSIZE, crNextSending);
-		    }
-	    }
-	    if (!pUpClientStruct->m_DoneBlocks_list.IsEmpty()){
-		    block = pUpClientStruct->m_DoneBlocks_list.GetHead();
-		    if(block){
-			    uint32 start = (uint32)(block->StartOffset/PARTSIZE);
-			    s_UpStatusBar.FillRange((uint64)start*PARTSIZE, (uint64)(start+1)*PARTSIZE, crNextSending);
-		    }
-		    for(POSITION pos = pUpClientStruct->m_DoneBlocks_list.GetHeadPosition();pos!=0;){
-			    block = pUpClientStruct->m_DoneBlocks_list.GetNext(pos);
-			    s_UpStatusBar.FillRange(block->StartOffset, block->EndOffset + 1, crSending);
-		    }
-	    }
-		lockBlockLists.Unlock();
+			CSingleLock lockBlockLists(&pUpClientStruct->m_csBlockListsLock, TRUE);
+			ASSERT( lockBlockLists.IsLocked() );
+			const Requested_Block_Struct* block;
+			if (!pUpClientStruct->m_BlockRequests_queue.IsEmpty())
+			{
+				block = pUpClientStruct->m_BlockRequests_queue.GetHead();
+				if(block){
+					uint32 start = (uint32)(block->StartOffset/PARTSIZE);
+					s_UpStatusBar.FillRange((uint64)start*PARTSIZE, (uint64)(start+1)*PARTSIZE, crNextSending);
+				}
+			}
+			if (!pUpClientStruct->m_DoneBlocks_list.IsEmpty()){
+				block = pUpClientStruct->m_DoneBlocks_list.GetHead();
+				if(block){
+					uint32 start = (uint32)(block->StartOffset/PARTSIZE);
+					s_UpStatusBar.FillRange((uint64)start*PARTSIZE, (uint64)(start+1)*PARTSIZE, crNextSending);
+				}
+				for(POSITION pos = pUpClientStruct->m_DoneBlocks_list.GetHeadPosition();pos!=0;){
+					block = pUpClientStruct->m_DoneBlocks_list.GetNext(pos);
+					s_UpStatusBar.FillRange(block->StartOffset, block->EndOffset + 1, crSending);
+				}
+			}
+			lockBlockLists.Unlock();
+		}
    	    s_UpStatusBar.Draw(dc, rect->left, rect->top, bFlat);
     }
 } 

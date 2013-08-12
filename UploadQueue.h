@@ -47,7 +47,7 @@ public:
 	bool	RemoveFromUploadQueue(CUpDownClient* client, LPCTSTR pszReason = NULL, bool updatewindow = true, bool earlyabort = false);
 	bool	RemoveFromWaitingQueue(CUpDownClient* client,bool updatewindow = true);
 	bool	IsOnUploadQueue(CUpDownClient* client)	const {return (waitinglist.Find(client) != 0);}
-	bool	IsDownloading(CUpDownClient* client)	const {return (uploadinglist.Find(client) != 0);}
+	bool	IsDownloading(const CUpDownClient* client)	const {return (GetUploadingClientStructByClient(client) != NULL);}
 
     void    UpdateDatarates();
 	uint32	GetDatarate() const;
@@ -72,7 +72,7 @@ public:
 	CUpDownClient*	GetWaitingClientByIP(uint32 dwIP);
 	CUpDownClient*	GetNextClient(const CUpDownClient* update);
 
-	UploadingToClient_Struct* GetUploadingClientStructByClient(const CUpDownClient* pClient);
+	UploadingToClient_Struct* GetUploadingClientStructByClient(const CUpDownClient* pClient) const;
 
 	const CUploadingPtrList& GetUploadListTS(CCriticalSection** outUploadListReadLock); 
 
