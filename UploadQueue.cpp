@@ -1235,8 +1235,10 @@ const CUploadingPtrList& CUploadQueue::GetUploadListTS(CCriticalSection** outUpl
 	return uploadinglist;
 }
 
-UploadingToClient_Struct* CUploadQueue::GetUploadingClientStructByClient(const CUpDownClient* pClient)
+UploadingToClient_Struct* CUploadQueue::GetUploadingClientStructByClient(const CUpDownClient* pClient) const
 {
+	//TODO: Check if this function is too slow for its usage (esp. when rendering the GUI bars)
+	//		if necessary we will have to speed it up with an additonal map
 	for (POSITION pos = uploadinglist.GetHeadPosition(); pos != 0; )
 	{
 		UploadingToClient_Struct* pCurClientStruct = uploadinglist.GetNext(pos);
