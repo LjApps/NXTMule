@@ -339,6 +339,7 @@ void CUploadDiskIOThread::StartCreateNextBlockPackage(UploadingToClient_Struct* 
 			else
 			{
 				// read succeeded immediatly without an async operation
+				pstructOverlappedEx->dwRead = dwRead;
 				m_listFinishedIO.AddTail(pstructOverlappedEx);
 				dbgDataReadPending += togo;
 			}
