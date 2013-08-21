@@ -187,7 +187,7 @@ const CAICHHashTree* CAICHHashTree::FindExistingHash(uint64 nStartPos, uint64 nS
 				return NULL;
 			else{
 				ASSERT( m_pLeftTree->m_nDataSize == nLeft );
-				return m_pLeftTree->FindHash(nStartPos, nSize, nLevel);
+				return m_pLeftTree->FindExistingHash(nStartPos, nSize, nLevel);
 			}
 		}
 		else{
@@ -200,7 +200,7 @@ const CAICHHashTree* CAICHHashTree::FindExistingHash(uint64 nStartPos, uint64 nS
 				return NULL;
 			else{
 				ASSERT( m_pRightTree->m_nDataSize == nRight );
-				return m_pRightTree->FindHash(nStartPos, nSize, nLevel);
+				return m_pRightTree->FindExistingHash(nStartPos, nSize, nLevel);
 			}
 		}
 	}
@@ -704,6 +704,11 @@ bool CAICHRecoveryHashSet::ReadRecoveryData(uint64 nPartStartPos, CSafeMemFile* 
 			}
 		}
 	}
+	else if (fileDataIn->GetLength() - fileDataIn->GetPosition() >= 2)
+    {
+        fileDataIn->ReadUInt16();
+    }
+
 	
 	if (nHashsAvailable == 0){
 		theApp.QueueDebugLogLine(/*DLP_VERYHIGH,*/ false, _T("Failed to read RecoveryData for %s - Packet didn't contained any hashs"), m_pOwner->GetFileName() );

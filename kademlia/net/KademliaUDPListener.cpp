@@ -818,6 +818,7 @@ void CKademliaUDPListener::Process_KADEMLIA2_RES (const byte *pbyPacketData, uin
 		else
 			DebugLogWarning(_T("Kad: KADEMLIA2_RES: Contact sent more nodes (%u) than requested (%u), ignoring answer (sender: %s)")
 				, uNumContacts, CSearchManager::GetExpectedResponseContactCount(uTarget), ipstr(ntohl(uIP)));
+		return;
 	}
 
 	
