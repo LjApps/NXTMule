@@ -44,13 +44,10 @@ BEGIN_MESSAGE_MAP(CPPgWebServer, CPropertyPage)
 	ON_EN_CHANGE(IDC_WSPASS, OnDataChange)
 	ON_EN_CHANGE(IDC_WSPASSLOW, OnDataChange)
 	ON_EN_CHANGE(IDC_WSPORT, OnDataChange)
-	ON_EN_CHANGE(IDC_MMPASSWORDFIELD, OnDataChange)
 	ON_EN_CHANGE(IDC_TMPLPATH, OnDataChange)
-	ON_EN_CHANGE(IDC_MMPORT_FIELD, OnDataChange)
 	ON_EN_CHANGE(IDC_WSTIMEOUT, OnDataChange)
 	ON_BN_CLICKED(IDC_WSENABLED, OnEnChangeWSEnabled)
 	ON_BN_CLICKED(IDC_WSENABLEDLOW, OnEnChangeWSEnabled)
-	ON_BN_CLICKED(IDC_MMENABLED, OnEnChangeMMEnabled)
 	ON_BN_CLICKED(IDC_WSRELOADTMPL, OnReloadTemplates)
 	ON_BN_CLICKED(IDC_TMPLBROWSE, OnBnClickedTmplbrowse)
 	ON_BN_CLICKED(IDC_WS_GZIP, OnDataChange)
@@ -92,19 +89,6 @@ BOOL CPPgWebServer::OnInitDialog()
 
 	OnEnChangeWSEnabled();
 
-	// note: there are better classes to create a pure hyperlink, however since it is only needed here
-	//		 we rather use an already existing class
-	CRect rect;
-	GetDlgItem(IDC_GUIDELINK)->GetWindowRect(rect);
-	::MapWindowPoints(NULL, m_hWnd, (LPPOINT)&rect, 2);
-	m_wndMobileLink.CreateEx(NULL,0,_T("MsgWnd"),WS_BORDER | WS_VISIBLE | WS_CHILD | HTC_WORDWRAP | HTC_UNDERLINE_HOVER,rect.left,rect.top,rect.Width(),rect.Height(),m_hWnd,0);
-	m_wndMobileLink.SetBkColor(::GetSysColor(COLOR_3DFACE)); // still not the right color, will fix this later (need to merge the .rc file before it changes ;) )
-	m_wndMobileLink.SetFont(GetFont());
-	if (!bCreated){
-		bCreated = true;
-		m_wndMobileLink.AppendText(_T("Link: "));
-		m_wndMobileLink.AppendHyperLink(GetResString(IDS_MMGUIDELINK),0,CString(_T("http://mobil.emule-project.net")),0,0);
-	}
 	return TRUE;
 }
 
@@ -114,13 +98,9 @@ void CPPgWebServer::LoadSettings(void)
 
 	GetDlgItem(IDC_WSPASS)->SetWindowText(HIDDEN_PASSWORD);
 	GetDlgItem(IDC_WSPASSLOW)->SetWindowText(HIDDEN_PASSWORD);
-	GetDlgItem(IDC_MMPASSWORDFIELD)->SetWindowText(HIDDEN_PASSWORD);
 
 	strBuffer.Format(_T("%d"), thePrefs.GetWSPort());
 	GetDlgItem(IDC_WSPORT)->SetWindowText(strBuffer);
-
-	strBuffer.Format(_T("%d"), thePrefs.GetMMPort());
-	GetDlgItem(IDC_MMPORT_FIELD)->SetWindowText(strBuffer);
 
 	GetDlgItem(IDC_TMPLPATH)->SetWindowText(thePrefs.GetTemplate());
 
@@ -137,18 +117,12 @@ void CPPgWebServer::LoadSettings(void)
 	else
 		CheckDlgButton(IDC_WSENABLEDLOW,0);
 
-	if(thePrefs.IsMMServerEnabled())
-		CheckDlgButton(IDC_MMENABLED,1);
-	else
-		CheckDlgButton(IDC_MMENABLED,0);
 
 	CheckDlgButton(IDC_WS_GZIP,(thePrefs.GetWebUseGzip())? 1 : 0);
 	CheckDlgButton(IDC_WS_ALLOWHILEVFUNC,(thePrefs.GetWebAdminAllowedHiLevFunc())? 1 : 0);
 
 	GetDlgItem(IDC_WSUPNP)->EnableWindow(thePrefs.IsUPnPEnabled() && thePrefs.GetWSIsEnabled());
 	CheckDlgButton(IDC_WSUPNP, (thePrefs.IsUPnPEnabled() && thePrefs.m_bWebUseUPnP) ? TRUE : FALSE);
-	
-	OnEnChangeMMEnabled();
 
 	SetModified(FALSE);	// FoRcHa
 }
@@ -195,22 +169,6 @@ BOOL CPPgWebServer::OnApply()
 		thePrefs.SetWebUseGzip(IsDlgButtonChecked(IDC_WS_GZIP)!=0);
 		theApp.webserver->StartServer();
 		thePrefs.m_bAllowAdminHiLevFunc= (IsDlgButtonChecked(IDC_WS_ALLOWHILEVFUNC)!=0);
-
-		// mobilemule
-		GetDlgItem(IDC_MMPORT_FIELD)->GetWindowText(sBuf);
-		if (_tstoi(sBuf)!= thePrefs.GetMMPort() ) {
-			thePrefs.SetMMPort((uint16)_tstoi(sBuf));
-			theApp.mmserver->StopServer();
-			theApp.mmserver->Init();
-		}
-		thePrefs.SetMMIsEnabled(IsDlgButtonChecked(IDC_MMENABLED)!=0);
-		if (IsDlgButtonChecked(IDC_MMENABLED))
-			theApp.mmserver->Init();
-		else
-			theApp.mmserver->StopServer();
-		GetDlgItem(IDC_MMPASSWORDFIELD)->GetWindowText(sBuf);
-		if(sBuf != HIDDEN_PASSWORD)
-			thePrefs.SetMMPass(sBuf);
 		
 		if (IsDlgButtonChecked(IDC_WSUPNP))
 		{
@@ -254,11 +212,6 @@ void CPPgWebServer::Localize(void)
 		SetDlgItemText(IDC_WSTIMEOUTLABEL,GetResString(IDS_WEB_SESSIONTIMEOUT)+_T(":"));
 		SetDlgItemText(IDC_MINS,GetResString(IDS_LONGMINS) );
 
-		GetDlgItem(IDC_MMENABLED)->SetWindowText(GetResString(IDS_ENABLEMM));
-		GetDlgItem(IDC_STATIC_MOBILEMULE)->SetWindowText(GetResString(IDS_MOBILEMULE));
-		GetDlgItem(IDC_MMPASSWORD)->SetWindowText(GetResString(IDS_WS_PASS));
-		GetDlgItem(IDC_MMPORT_LBL)->SetWindowText(GetResString(IDS_PORT));
-
 		GetDlgItem(IDC_WS_ALLOWHILEVFUNC)->SetWindowText(GetResString(IDS_WEB_ALLOWHILEVFUNC));
 	}
 }
@@ -280,14 +233,6 @@ void CPPgWebServer::OnEnChangeWSEnabled()
 	//GetDlgItem(IDC_WSRELOADTMPL)->EnableWindow(bIsWIEnabled);
 	SetTmplButtonState();
 
-
-	SetModified();
-}
-
-void CPPgWebServer::OnEnChangeMMEnabled()
-{
-	GetDlgItem(IDC_MMPASSWORDFIELD)->EnableWindow(IsDlgButtonChecked(IDC_MMENABLED));	
-	GetDlgItem(IDC_MMPORT_FIELD)->EnableWindow(IsDlgButtonChecked(IDC_MMENABLED));
 
 	SetModified();
 }
