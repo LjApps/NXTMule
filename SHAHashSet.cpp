@@ -295,9 +295,15 @@ bool CAICHHashTree::VerifyHashTree(CAICHHashAlgo* hashalg, bool bDeleteBadTrees)
 		if (bDeleteBadTrees)
 		{
 			if (m_pLeftTree && !m_pLeftTree->m_bHashValid)
+			{
 				delete m_pLeftTree;
+				m_pLeftTree = NULL;
+			}
 			if (m_pRightTree && !m_pRightTree->m_bHashValid)
+			{
 				delete m_pRightTree;
+				m_pRightTree = NULL;
+			}
 		}
 		return true;
 	}
