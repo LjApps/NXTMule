@@ -961,7 +961,7 @@ SocketSentBytes CEMSocket::SendOv(uint32 maxNumberOfBytesToSend, uint32 minFragS
 			ZeroMemory(m_pPendingSendOperation, sizeof(WSAOVERLAPPED));
 			m_pPendingSendOperation->hEvent = theApp.uploadBandwidthThrottler->GetSocketAvailableEvent();
 			DWORD dwBytesSent = 0;
-			if (WSASend(GetSocketHandle(), m_aBufferSend.GetData(), m_aBufferSend.GetCount(), &dwBytesSent, 0, m_pPendingSendOperation, NULL) == 0)
+			if (CEncryptedStreamSocket::SendOv(m_aBufferSend, dwBytesSent, m_pPendingSendOperation) == 0)
 			{
 				ASSERT( dwBytesSent > 0 );
 				CleanUpOverlappedSendOperation(false);
