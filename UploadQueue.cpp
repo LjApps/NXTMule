@@ -343,7 +343,8 @@ void CUploadQueue::Process() {
 
     // The loop that feeds the upload slots with data.
 	POSITION pos = uploadinglist.GetHeadPosition();
-	while(pos != NULL){
+	while(pos != NULL)
+	{
         // Get the client. Note! Also updates pos as a side effect.
 		UploadingToClient_Struct* pCurClientStruct = uploadinglist.GetNext(pos);
 		CUpDownClient* cur_client = pCurClientStruct->m_pClient;
@@ -363,11 +364,13 @@ void CUploadQueue::Process() {
 			if (pCurClientStruct->m_bIOError)
 			{
 				RemoveFromUploadQueue(cur_client, _T("IO/Other Error while creating datapacket (see earlier log entries)"), true);
+				continue;
 			}
 			if (CheckForTimeOver(cur_client))
 			{
 				RemoveFromUploadQueue(cur_client, _T("Completed transfer"), true);
 				cur_client->SendOutOfPartReqsAndAddToWaitingQueue();
+				continue;
 			}
 
 			// check if the fileid of the topmost blockrequest matches with out current uploadfile, otherwise the IO thread will
@@ -395,7 +398,7 @@ void CUploadQueue::Process() {
 				}
 			}
 			lockBlockLists.Unlock();
-        }
+		}
 	}
 
     // Save used bandwidth for speed calculations

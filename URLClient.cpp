@@ -17,6 +17,7 @@
 #include "stdafx.h"
 #include <wininet.h>
 #include "UrlClient.h"
+#include "emule.h"
 #include "PartFile.h"
 #include "Packets.h"
 #include "ListenSocket.h"
@@ -25,6 +26,7 @@
 #include "OtherFunctions.h"
 #include "Statistics.h"
 #include "ClientCredits.h"
+#include "Clientlist.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -208,7 +210,15 @@ void CUrlClient::Connect()
 void CUrlClient::OnSocketConnected(int nErrorCode)
 {
 	if (nErrorCode == 0)
-		SendHttpBlockRequests();
+		ConnectionEstablished();
+}
+
+void CUrlClient::ConnectionEstablished()
+{
+	m_nConnectingState = CCS_NONE;
+	theApp.clientlist->RemoveConnectingClient(this);
+	SendHttpBlockRequests();
+	SetDownStartTime();
 }
 
 void CUrlClient::SendHelloPacket()
