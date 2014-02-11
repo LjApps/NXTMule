@@ -213,6 +213,7 @@ UINT CSearchList::ProcessSearchAnswer(const uchar* in_packet, uint32 size,
 		CSearchFile* toadd = new CSearchFile(&packet, Sender ? Sender->GetUnicodeSupport()!=utf8strNone : false, nSearchID, 0, 0, pszDirectory);
 		if (toadd->IsLargeFile() && (Sender == NULL || !Sender->SupportsLargeFiles())){
 			DebugLogWarning(_T("Client offers large file (%s) but doesn't announced support for it - ignoring file"), toadd->GetFileName());
+			delete toadd;
 			continue;
 		}
 		if (Sender){
