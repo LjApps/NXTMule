@@ -1302,7 +1302,7 @@ void CDownloadQueue::SetCatStatus(UINT cat, int newstatus)
 	POSITION pos= filelist.GetHeadPosition();
 	while (pos != 0)
 	{
-		CPartFile* cur_file = filelist.GetAt(pos);
+		CPartFile* cur_file = filelist.GetNext(pos);
 		if (!cur_file)
 			continue;
 
@@ -1336,7 +1336,6 @@ void CDownloadQueue::SetCatStatus(UINT cat, int newstatus)
 					break;
 			}
 		}
-		filelist.GetNext(pos);
 		if (reset)
 		{
 			reset = false;
@@ -1358,7 +1357,7 @@ void CDownloadQueue::MoveCat(UINT from, UINT to)
 	POSITION pos= filelist.GetHeadPosition();
 	while (pos != 0)
 	{
-		CPartFile* cur_file = filelist.GetAt(pos);
+		CPartFile* cur_file = filelist.GetNext(pos);
 		if (!cur_file)
 			continue;
 
@@ -1376,7 +1375,6 @@ void CDownloadQueue::MoveCat(UINT from, UINT to)
 					cur_file->SetCategory(mycat + 1);
 			}
 		}
-		filelist.GetNext(pos);
 	}
 }
 
