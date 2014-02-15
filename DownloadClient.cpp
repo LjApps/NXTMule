@@ -942,7 +942,6 @@ void CUpDownClient::SendBlockRequests()
 				SetDownloadState(DS_ERROR);
 				return;
 			}
-			break;
 		}
 		listToRequest.AddTail(pending);
 		if (listToRequest.GetCount() >= 3)
@@ -964,7 +963,6 @@ void CUpDownClient::SendBlockRequests()
 					SetDownloadState(DS_ERROR);
 					return;
 				}
-				break;
 			}
 			listToRequest.AddTail(pending);
 			if (listToRequest.GetCount() >= 3)
