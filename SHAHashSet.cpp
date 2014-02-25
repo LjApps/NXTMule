@@ -1016,7 +1016,7 @@ void CAICHRecoveryHashSet::UntrustedHashReceived(const CAICHHash& Hash, uint32 d
 		{
 			if (!m_aUntrustedHashs[i].AddSigningIP(dwFromIP, true))
 			{
-				AddDebugLogLine(DLP_LOW, false, _T("Received different AICH hashs for file %s from IP/20 %s, ignored"), (m_pOwner != NULL) ? m_pOwner->GetFileName() : _T(""), dwFromIP); 
+				AddDebugLogLine(DLP_LOW, false, _T("Received different AICH hashs for file %s from IP/20 %s, ignored"), (m_pOwner != NULL) ? m_pOwner->GetFileName() : _T(""), ipstr(dwFromIP)); 
 				// nothing changed, so we can return early without any rechecks
 				return;
 			}
