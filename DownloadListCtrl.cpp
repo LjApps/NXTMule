@@ -1377,8 +1377,9 @@ void CDownloadListCtrl::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 			VERIFY( CatsMenu.DestroyMenu() );
 			VERIFY( PreviewWithMenu.DestroyMenu() );
 		}
-		else{
-			const CUpDownClient* client = (CUpDownClient*)content->value;
+		else
+		{
+			const CUpDownClient* client = content != NULL ? (CUpDownClient*)content->value : NULL;
 			CTitleMenu ClientMenu;
 			ClientMenu.CreatePopupMenu();
 			ClientMenu.AddMenuTitle(GetResString(IDS_CLIENTS), true);
@@ -1918,7 +1919,8 @@ BOOL CDownloadListCtrl::OnCommand(WPARAM wParam, LPARAM /*lParam*/)
 					break;
 			}
 		}
-		else{
+		else if (content != NULL)
+		{
 			CUpDownClient* client = (CUpDownClient*)content->value;
 
 			switch (wParam){

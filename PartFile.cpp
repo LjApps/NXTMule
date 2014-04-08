@@ -467,8 +467,8 @@ void CPartFile::CreatePartFile(UINT cat)
 			}
 		}
 
-		struct _stat fileinfo;
-		if (_tstat(partfull, &fileinfo) == 0){
+		struct _stat32i64 fileinfo;
+		if (_tstat32i64(partfull, &fileinfo) == 0){
 			m_tLastModified = fileinfo.st_mtime;
 			m_tCreated = fileinfo.st_ctime;
 		}
@@ -1231,8 +1231,8 @@ EPartFileLoadResult CPartFile::LoadPartFile(LPCTSTR in_directory,LPCTSTR in_file
 	}
 
 	// read part file creation time
-	struct _stat fileinfo;
-	if (_tstat(searchpath, &fileinfo) == 0){
+	struct _stat32i64 fileinfo;
+	if (_tstat32i64(searchpath, &fileinfo) == 0){
 		m_tLastModified = fileinfo.st_mtime;
 		m_tCreated = fileinfo.st_ctime;
 	}
@@ -3442,8 +3442,8 @@ BOOL CPartFile::PerformFileComplete()
 	// that file will be rehashed at next startup and there would also be a duplicate entry (hash+size) in known.met
 	// because of different file date!
 	ASSERT( m_hpartfile.m_hFile == INVALID_HANDLE_VALUE ); // the file must be closed/commited!
-	struct _stat st;
-	if (_tstat(strNewname, &st) == 0)
+	struct _stat32i64 st;
+	if (_tstat32i64(strNewname, &st) == 0)
 	{
 		m_tLastModified = st.st_mtime;
 		m_tUtcLastModified = m_tLastModified;
