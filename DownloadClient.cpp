@@ -559,6 +559,10 @@ void CUpDownClient::ProcessFileStatus(bool bUdpPacket, CSafeMemFile* data, CPart
 			throw GetResString(IDS_ERR_WRONGFILEID) + _T(" (ProcessFileStatus; reqfile==NULL)");
 		throw GetResString(IDS_ERR_WRONGFILEID) + _T(" (ProcessFileStatus; reqfile!=file)");
 	}
+
+	if (file->GetStatus() == PS_COMPLETE || file->GetStatus() == PS_COMPLETING)
+		return;
+
 	uint16 nED2KPartCount = data->ReadUInt16();
 	delete[] m_abyPartStatus;
 	m_abyPartStatus = NULL;
