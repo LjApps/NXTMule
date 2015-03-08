@@ -23,7 +23,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Wall"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\site_config;.;..;..\id3lib\include"
+				AdditionalIncludeDirectories="..\site_config;.;..;.\id3lib\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="version.lib winmm.lib ADSIId.lib crypt32.lib wmvcore.lib ..\zlib\debug\zlib.lib ..\crypto51\debug\cryptlib.lib ..\id3lib\libprj\debug\id3lib.lib .\CxImage\debug\cximage.lib ..\libpng\projects\visualc71\Win32_LIB_Debug\libpngd.lib ..\ResizableLib\DebugUnicode\ResizableLib.lib .\miniupnpc\Debug\miniupnpc.lib"
+				AdditionalDependencies="version.lib winmm.lib ADSIId.lib crypt32.lib wmvcore.lib ..\zlib\debug\zlib.lib ..\crypto51\debug\cryptlib.lib .\id3lib\libprj\debug\id3lib.lib .\CxImage\debug\cximage.lib ..\libpng\projects\visualc71\Win32_LIB_Debug\libpngd.lib ..\ResizableLib\DebugUnicode\ResizableLib.lib .\miniupnpc\Debug\miniupnpc.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs=""
@@ -93,7 +93,7 @@
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\site_config;.;..;..\id3lib\include"
+				AdditionalIncludeDirectories="..\site_config;.;..;.\id3lib\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -109,7 +109,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/safeseh"
-				AdditionalDependencies="unicows.lib kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib gdiplus.lib ADSIId.lib crypt32.lib wmvcore.lib ..\zlib\release\zlib.lib ..\crypto51\release\cryptlib.lib ..\id3lib\libprj\release\id3lib.lib .\CxImage\Release\cximage.lib ..\libpng\projects\visualc71\Win32_LIB_Release\libpng.lib ..\ResizableLib\ReleaseUnicode\ResizableLib.lib .\miniupnpc\Release\miniupnpc.lib"
+				AdditionalDependencies="unicows.lib kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib gdiplus.lib ADSIId.lib crypt32.lib wmvcore.lib ..\zlib\release\zlib.lib ..\crypto51\release\cryptlib.lib .\id3lib\libprj\release\id3lib.lib .\CxImage\Release\cximage.lib ..\libpng\projects\visualc71\Win32_LIB_Release\libpng.lib ..\ResizableLib\ReleaseUnicode\ResizableLib.lib .\miniupnpc\Release\miniupnpc.lib"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="kernel32.lib;advapi32.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;version.lib;mpr.lib;rasapi32.lib;winmm.lib;winspool.lib;vfw32.lib;secur32.lib;oleacc.lib;oledlg.lib;sensapi.lib"
 				DelayLoadDLLs="oleacc.dll;gdiplus.dll;ws2_32.dll"
