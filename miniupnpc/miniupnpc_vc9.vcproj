@@ -60,6 +60,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="IPHlpApi.Lib"
 				OutputFile="$(OutDir)/miniupnpc.lib"
 			/>
 			<Tool
@@ -118,6 +119,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="IPHlpApi.Lib"
 				OutputFile="$(OutDir)/miniupnpc.lib"
 			/>
 			<Tool
@@ -146,6 +148,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\connecthostport.c"
+				>
+			</File>
+			<File
 				RelativePath=".\igd_desc_parse.c"
 				>
 			</File>
@@ -166,7 +172,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\minixmlvalid.c"
+				RelativePath=".\portlistingparse.c"
+				>
+			</File>
+			<File
+				RelativePath=".\receivedata.c"
+				>
+			</File>
+			<File
+				RelativePath=".\upnpc.c"
 				>
 			</File>
 			<File
@@ -192,6 +206,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\codelength.h"
+				>
+			</File>
+			<File
+				RelativePath=".\connecthostport.h"
+				>
+			</File>
+			<File
 				RelativePath=".\declspec.h"
 				>
 			</File>
@@ -208,11 +230,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\miniupnpcstrings.h"
+				>
+			</File>
+			<File
+				RelativePath=".\miniupnpctypes.h"
+				>
+			</File>
+			<File
 				RelativePath=".\miniwget.h"
 				>
 			</File>
 			<File
 				RelativePath=".\minixml.h"
+				>
+			</File>
+			<File
+				RelativePath=".\portlistingparse.h"
+				>
+			</File>
+			<File
+				RelativePath=".\receivedata.h"
 				>
 			</File>
 			<File
