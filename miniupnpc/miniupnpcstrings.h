@@ -9,7 +9,7 @@
 #define __MINIUPNPCSTRINGS_H__
 
 #define OS_STRING "Windows/Win32"
-#define MINIUPNPC_VERSION_STRING "1.4"
+#define MINIUPNPC_VERSION_STRING "1.9"
 
 #endif
 

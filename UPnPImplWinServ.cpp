@@ -74,6 +74,7 @@ CUPnPImplWinServ::CUPnPImplWinServ()
 
 void CUPnPImplWinServ::Init(){
 	if (!m_bInited){
+		DebugLog(_T("Using Windows Service based UPnP Implementation"));
 		m_hADVAPI32_DLL = LoadLibrary(_T("Advapi32.dll"));
 		if (m_hADVAPI32_DLL != 0) {
 			(FARPROC&)m_pfnOpenSCManager = GetProcAddress(	m_hADVAPI32_DLL, "OpenSCManagerW" );
@@ -293,7 +294,6 @@ void CUPnPImplWinServ::StartDiscovery(uint16 nTCPPort, uint16 nUDPPort, uint16 n
 
 	Init();
 	if (!bSecondTry){
-		DebugLog(_T("Using Windows Service based UPnP Implementation for current try"));
 		m_bCheckAndRefresh = false;
 	}
 

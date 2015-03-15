@@ -30,6 +30,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="IPHlpApi.Lib"
 				OutputFile="$(OutDir)/miniupnpc.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -66,6 +67,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="IPHlpApi.Lib"
 				OutputFile="$(OutDir)/miniupnpc.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -95,31 +97,52 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\igd_desc_parse.c">
+				RelativePath=".\connecthostport.c"
+				>
 			</File>
 			<File
-				RelativePath=".\minisoap.c">
+				RelativePath=".\igd_desc_parse.c"
+				>
 			</File>
 			<File
-				RelativePath=".\miniupnpc.c">
+				RelativePath=".\minisoap.c"
+				>
 			</File>
 			<File
-				RelativePath=".\miniwget.c">
+				RelativePath=".\miniupnpc.c"
+				>
 			</File>
 			<File
-				RelativePath=".\minixml.c">
+				RelativePath=".\miniwget.c"
+				>
 			</File>
 			<File
-				RelativePath=".\minixmlvalid.c">
+				RelativePath=".\minixml.c"
+				>
 			</File>
 			<File
-				RelativePath=".\upnpcommands.c">
+				RelativePath=".\portlistingparse.c"
+				>
 			</File>
 			<File
-				RelativePath=".\upnperrors.c">
+				RelativePath=".\receivedata.c"
+				>
 			</File>
 			<File
-				RelativePath=".\upnpreplyparse.c">
+				RelativePath=".\upnpc.c"
+				>
+			</File>
+			<File
+				RelativePath=".\upnpcommands.c"
+				>
+			</File>
+			<File
+				RelativePath=".\upnperrors.c"
+				>
+			</File>
+			<File
+				RelativePath=".\upnpreplyparse.c"
+				>
 			</File>
 		</Filter>
 		<Filter
@@ -127,34 +150,68 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\bsdqueue.h">
+				RelativePath=".\bsdqueue.h"
+				>
 			</File>
 			<File
-				RelativePath=".\declspec.h">
+				RelativePath=".\codelength.h"
+				>
 			</File>
 			<File
-				RelativePath=".\igd_desc_parse.h">
+				RelativePath=".\connecthostport.h"
+				>
 			</File>
 			<File
-				RelativePath=".\minisoap.h">
+				RelativePath=".\declspec.h"
+				>
 			</File>
 			<File
-				RelativePath=".\miniupnpc.h">
+				RelativePath=".\igd_desc_parse.h"
+				>
 			</File>
 			<File
-				RelativePath=".\miniwget.h">
+				RelativePath=".\minisoap.h"
+				>
 			</File>
 			<File
-				RelativePath=".\minixml.h">
+				RelativePath=".\miniupnpc.h"
+				>
 			</File>
 			<File
-				RelativePath=".\upnpcommands.h">
+				RelativePath=".\miniupnpcstrings.h"
+				>
 			</File>
 			<File
-				RelativePath=".\upnperrors.h">
+				RelativePath=".\miniupnpctypes.h"
+				>
 			</File>
 			<File
-				RelativePath=".\upnpreplyparse.h">
+				RelativePath=".\miniwget.h"
+				>
+			</File>
+			<File
+				RelativePath=".\minixml.h"
+				>
+			</File>
+			<File
+				RelativePath=".\portlistingparse.h"
+				>
+			</File>
+			<File
+				RelativePath=".\receivedata.h"
+				>
+			</File>
+			<File
+				RelativePath=".\upnpcommands.h"
+				>
+			</File>
+			<File
+				RelativePath=".\upnperrors.h"
+				>
+			</File>
+			<File
+				RelativePath=".\upnpreplyparse.h"
+				>
 			</File>
 		</Filter>
 		<Filter

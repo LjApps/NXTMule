@@ -113,7 +113,7 @@ void CUPnPImplMiniLib::DeletePorts(bool bSkipLock){
 			const char achTCP[] = "TCP";
 			char achPort[10];
 			sprintf(achPort, "%u", m_nOldTCPPort);
-			int nResult = UPNP_DeletePortMapping(m_pURLs->controlURL, m_pIGDData->servicetype, achPort, achTCP, NULL);
+			int nResult = UPNP_DeletePortMapping(m_pURLs->controlURL, m_pIGDData->CIF.servicetype, achPort, achTCP, NULL);
 			if (nResult == UPNPCOMMAND_SUCCESS){
 				DebugLog(_T("Sucessfully removed mapping for port %u (%s)"), m_nOldTCPPort, _T("TCP"));
 				m_nOldTCPPort = 0;
@@ -131,7 +131,7 @@ void CUPnPImplMiniLib::DeletePorts(bool bSkipLock){
 			const char achTCP[] = "UDP";
 			char achPort[10];
 			sprintf(achPort, "%u", m_nOldUDPPort);
-			int nResult = UPNP_DeletePortMapping(m_pURLs->controlURL, m_pIGDData->servicetype, achPort, achTCP, NULL);
+			int nResult = UPNP_DeletePortMapping(m_pURLs->controlURL, m_pIGDData->CIF.servicetype, achPort, achTCP, NULL);
 			if (nResult == UPNPCOMMAND_SUCCESS){
 				DebugLog(_T("Sucessfully removed mapping for port %u (%s)"), m_nOldUDPPort, _T("UDP"));
 				m_nOldTCPPort = 0;
@@ -144,7 +144,7 @@ void CUPnPImplMiniLib::DeletePorts(bool bSkipLock){
 			const char achTCP[] = "TCP";
 			char achPort[10];
 			sprintf(achPort, "%u", m_nOldTCPWebPort);
-			int nResult = UPNP_DeletePortMapping(m_pURLs->controlURL, m_pIGDData->servicetype, achPort, achTCP, NULL);
+			int nResult = UPNP_DeletePortMapping(m_pURLs->controlURL, m_pIGDData->CIF.servicetype, achPort, achTCP, NULL);
 			if (nResult == UPNPCOMMAND_SUCCESS){
 				DebugLog(_T("Sucessfully removed mapping for webinterface port %u (%s)"), m_nOldTCPPort, _T("TCP"));
 				m_nOldTCPWebPort = 0;
@@ -161,7 +161,7 @@ void CUPnPImplMiniLib::DeletePorts(bool bSkipLock){
 
 void CUPnPImplMiniLib::StartDiscovery(uint16 nTCPPort, uint16 nUDPPort, uint16 nTCPWebPort){
 	DebugLog(_T("Using MiniUPnPLib based implementation"));
-	DebugLog(_T("miniupnpc (c) 2006-2008 Thomas Bernard - http://miniupnp.free.fr/"));
+	DebugLog(_T("miniupnpc (c) 2006-2013 Thomas Bernard - http://miniupnp.free.fr/"));
 	m_nOldUDPPort = (ArePortsForwarded() == TRIS_TRUE) ? m_nUDPPort : 0;
 	m_nUDPPort = nUDPPort;
 	m_nOldTCPPort = (ArePortsForwarded() == TRIS_TRUE) ? m_nTCPPort : 0;
@@ -247,7 +247,7 @@ int CUPnPImplMiniLib::CStartDiscoveryThread::Run()
 	{
 		if (!m_pOwner->m_bCheckAndRefresh)
 		{
-			UPNPDev* structDeviceList = upnpDiscover(2000, NULL, NULL, 0);
+			UPNPDev* structDeviceList = upnpDiscover(2000, NULL, NULL, 0, 0, 0);
 			if (structDeviceList == NULL){
 				DebugLog(_T("UPNP: No Internet Gateway Devices found, aborting"));
 				m_pOwner->m_bUPnPPortsForwarded = TRIS_FALSE;
@@ -344,11 +344,11 @@ bool CUPnPImplMiniLib::CStartDiscoveryThread::OpenPort(uint16 nPort, bool bTCP, 
 	{
 		achOutIP[0] = 0;
 		if (bTCP)
-			nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->servicetype
-			, achPort, achTCP, achOutIP, achOutPort);
+			nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->CIF.servicetype
+			, achPort, achTCP, NULL, achOutIP, achOutPort, NULL, NULL, NULL);
 		else
-			nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->servicetype
-			, achPort, achUDP, achOutIP, achOutPort);
+			nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->CIF.servicetype
+			, achPort, achUDP, NULL, achOutIP, achOutPort, NULL, NULL, NULL);
 
 		if (nResult == UPNPCOMMAND_SUCCESS && achOutIP[0] != 0){
 			DebugLog(_T("Checking UPnP: Mapping for port %u (%s) on local IP %S still exists"), nPort, bTCP ? _T("TCP") : _T("UDP"), achOutIP);
@@ -359,11 +359,11 @@ bool CUPnPImplMiniLib::CStartDiscoveryThread::OpenPort(uint16 nPort, bool bTCP, 
 	}
 
 	if (bTCP)
-		nResult = UPNP_AddPortMapping(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->servicetype
-		, achPort, achPort, pachLANIP, achDescTCP, achTCP, NULL);
+		nResult = UPNP_AddPortMapping(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->CIF.servicetype
+		, achPort, achPort, pachLANIP, achDescTCP, achTCP, NULL, NULL);
 	else
-		nResult = UPNP_AddPortMapping(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->servicetype
-		, achPort, achPort, pachLANIP, achDescUDP, achUDP, NULL);
+		nResult = UPNP_AddPortMapping(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->CIF.servicetype
+		, achPort, achPort, pachLANIP, achDescUDP, achUDP, NULL, NULL);
 
 	if (nResult != UPNPCOMMAND_SUCCESS){
 		DebugLog(_T("Adding PortMapping failed, Error Code %u"), nResult);
@@ -376,11 +376,11 @@ bool CUPnPImplMiniLib::CStartDiscoveryThread::OpenPort(uint16 nPort, bool bTCP, 
 	// make sure it really worked
 	achOutIP[0] = 0;
 	if (bTCP)
-		nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->servicetype
-		, achPort, achTCP, achOutIP, achOutPort);
+		nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->CIF.servicetype
+		, achPort, achTCP, NULL, achOutIP, achOutPort, NULL, NULL, NULL);
 	else
-		nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->servicetype
-		, achPort, achUDP, achOutIP, achOutPort);
+		nResult = UPNP_GetSpecificPortMappingEntry(m_pOwner->m_pURLs->controlURL, m_pOwner->m_pIGDData->CIF.servicetype
+		, achPort, achUDP, NULL, achOutIP, achOutPort, NULL, NULL, NULL);
 
 	if (nResult == UPNPCOMMAND_SUCCESS && achOutIP[0] != 0){
 		DebugLog(_T("Sucessfully added mapping for port %u (%s) on local IP %S"), nPort, bTCP ? _T("TCP") : _T("UDP"), achOutIP);
