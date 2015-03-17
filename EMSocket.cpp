@@ -134,10 +134,8 @@ CEMSocket::CEMSocket(void){
     m_hasSent = false;
 	m_bUsesBigSendBuffers = false;
 	m_pPendingSendOperation = NULL;
-	// Overlapped sockets are under investigations for buggyness (heap corruption), while doing so there is not
-	// much point letting the dev build crash, the dumps from those are not helpful anyway
-	m_bOverlappedSending = theApp.IsWinSock2Available(); // testing again
-	//m_bOverlappedSending = false;
+	// Overlapped sockets are under investigations for buggyness (heap corruption), only use for testing
+	m_bOverlappedSending = thePrefs.GetUseOverlappedSockets() && theApp.IsWinSock2Available();
 }
 
 CEMSocket::~CEMSocket(){
