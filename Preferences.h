@@ -104,6 +104,7 @@ public:
 	static	uint16	nServerUDPPort;
 	static	UINT	maxconnections;
 	static	UINT	maxhalfconnections;
+	static	bool	m_bOverlappedSockets;
 	static	bool	m_bConditionalTCPAccept;
 	static	bool	reconnect;
 	static	bool	m_bUseServerPriorities;
@@ -933,6 +934,7 @@ public:
 	static	uint64	GetMaxDownloadInBytesPerSec(bool dynamic = false);
 	static	UINT	GetMaxConnections()					{return maxconnections;}
 	static	UINT	GetMaxHalfConnections()				{return maxhalfconnections;}
+	static	bool	GetUseOverlappedSockets()			{return m_bOverlappedSockets; }
 	static	UINT	GetMaxSourcePerFileDefault()		{return maxsourceperfile;}
 	static	UINT	GetDeadServerRetries()				{return m_uDeadServerRetries;}
 	static	DWORD	GetServerKeepAliveTimeout()			{return m_dwServerKeepAliveTimeout;}

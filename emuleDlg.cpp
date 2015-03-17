@@ -649,7 +649,9 @@ BOOL CemuleDlg::OnInitDialog()
 
 	// debug info
 	DebugLog(_T("Using '%s' as config directory"), thePrefs.GetMuleDirectory(EMULE_CONFIGDIR));
-	
+	if (thePrefs.GetUseOverlappedSockets())
+		DebugLog(_T("Using overlapped sockets"));
+
 	if (!thePrefs.HasCustomTaskIconColor())
 		SetTaskbarIconColor();
 

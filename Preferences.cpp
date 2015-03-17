@@ -77,6 +77,7 @@ uint16	CPreferences::udpport;
 uint16	CPreferences::nServerUDPPort;
 UINT	CPreferences::maxconnections;
 UINT	CPreferences::maxhalfconnections;
+bool	CPreferences::m_bOverlappedSockets;
 bool	CPreferences::m_bConditionalTCPAccept;
 bool	CPreferences::reconnect;
 bool	CPreferences::m_bUseServerPriorities;
@@ -2018,6 +2019,7 @@ void CPreferences::LoadPreferences()
 		maxdownload = (uint16)(maxGraphDownloadRate * .8);
 	maxconnections=ini.GetInt(L"MaxConnections",GetRecommendedMaxConnections());
 	maxhalfconnections=ini.GetInt(L"MaxHalfConnections",9);
+	m_bOverlappedSockets = ini.GetBool(L"OverlappedSockets", false); // Overlapped sockets are under investigations for buggyness (heap corruption), disable by default until fixed
 	m_bConditionalTCPAccept = ini.GetBool(L"ConditionalTCPAccept", false);
 
 	// reset max halfopen to a default if OS changed to SP2 (or higher) or away

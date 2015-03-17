@@ -434,11 +434,9 @@ void CCreditsThread::InitText()
 	m_arCredits.Add(_T("03:00:eMule"));
 	sTmp.Format(_T("02:01:Version %s"),theApp.m_strCurVersionLong);
 	m_arCredits.Add(sTmp);
-	m_arCredits.Add(_T("01:06:Copyright (C) 2002-2010 Merkur"));
+	m_arCredits.Add(_T("01:06:Copyright (C) 2002-2015 Merkur"));
 	m_arCredits.Add(_T("S:50"));
 	m_arCredits.Add(_T("02:04:Developers"));
-	m_arCredits.Add(_T("S:5"));
-	m_arCredits.Add(_T("01:06:Unknown1"));
 	m_arCredits.Add(_T("S:5"));
 	m_arCredits.Add(_T("01:06:Ornis"));
 
@@ -483,6 +481,8 @@ void CCreditsThread::InitText()
 	m_arCredits.Add(_T("01:06:Barry"));
 	m_arCredits.Add(_T("S:5"));
 	m_arCredits.Add(_T("01:06:Dirus"));
+	m_arCredits.Add(_T("S:5"));
+	m_arCredits.Add(_T("01:06:Unknown1"));
 	
 
 	m_arCredits.Add(_T("S:50"));
