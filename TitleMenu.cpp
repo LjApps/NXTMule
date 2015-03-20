@@ -549,3 +549,13 @@ void CTitleMenu::FreeAPI()
 	SetMenuInfo = NULL;
 	GetMenuInfo = NULL;
 }
+
+bool CTitleMenu::HasEnabledItems() const
+{
+	for (UINT i = 0; i < GetMenuItemCount(); i++)
+	{
+		if ((GetMenuState(i, MF_BYPOSITION) & (MF_DISABLED | MF_SEPARATOR | MF_GRAYED)) == 0)
+			return true;
+	}
+	return false;
+}

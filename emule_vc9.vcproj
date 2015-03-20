@@ -202,6 +202,189 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Beta|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="1"
+			CharacterSet="1"
+			DeleteExtensionsOnClean="*.obj;*.ilk;*.pdb;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.bat;*.asm;$(TargetPath)"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM"
+				UseSafeExceptionHandlers="true"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="false"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Wall"
+				Optimization="2"
+				AdditionalIncludeDirectories="..\site_config;.;..;.\id3lib\include"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES;_BETA"
+				UsePrecompiledHeader="2"
+				WarningLevel="4"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;_UNICODE;UNICODE"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/safeseh"
+				AdditionalDependencies="unicows.lib kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib gdiplus.lib ADSIId.lib crypt32.lib wmvcore.lib ..\zlib\contrib\vstudio\vc9\x86\zlibstat_release\zlibstat.lib ..\crypto51\release_vc9\cryptlib.lib .\id3lib\libprj\release_vc9\id3lib.lib .\cximage\release_vc9\cximage.lib ..\libpng\projects\visualc9\release\libpng.lib ..\resizablelib\release_vc9\resizablelib.lib .\miniupnpc\release_vc9\miniupnpc.lib"
+				LinkIncremental="1"
+				IgnoreDefaultLibraryNames="kernel32.lib;advapi32.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;version.lib;mpr.lib;rasapi32.lib;winmm.lib;winspool.lib;vfw32.lib;secur32.lib;oleacc.lib;oledlg.lib;sensapi.lib"
+				DelayLoadDLLs="oleacc.dll;gdiplus.dll;ws2_32.dll"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				AssemblyIdentity="Microsoft.Windows.emule, processorArchitecture=X86, version=1.0.0.0, type=win32"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="_SpecialBootstrapNodes|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="1"
+			CharacterSet="1"
+			DeleteExtensionsOnClean="*.obj;*.ilk;*.pdb;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.bat;*.asm;$(TargetPath)"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				CommandLine=""
+				AdditionalDependencies=""
+			/>
+			<Tool
+				Name="MASM"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="false"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Wall"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\site_config;.;..;.\id3lib\include"
+				PreprocessorDefinitions="_BOOTSTRAPNODESDAT;WIN32;_WINDOWS;_DEBUG;ID3LIB_LINKOPTION=1;MINIUPNP_STATICLIB;SUPPORT_LARGE_FILES"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="2"
+				WarningLevel="4"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;_UNICODE;UNICODE"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="version.lib winmm.lib ws2_32.lib gdiplus.lib ADSIId.lib crypt32.lib wmvcore.lib ..\zlib\contrib\vstudio\vc9\x86\zlibstat_debug\zlibstat.lib ..\crypto51\debug_vc9\cryptlib.lib .\id3lib\libprj\debug_vc9\id3lib.lib .\cximage\debug_vc9\cximage.lib ..\libpng\projects\visualc9\debug\libpngd.lib ..\resizablelib\debug_vc9\resizablelib.lib .\miniupnpc\debug_vc9\miniupnpc.lib"
+				LinkIncremental="2"
+				IgnoreDefaultLibraryNames=""
+				DelayLoadDLLs="oleacc.dll;gdiplus.dll"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="1"
+				EnableCOMDATFolding="1"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				AssemblyIdentity="Microsoft.Windows.emule, processorArchitecture=X86, version=1.0.0.0, type=win32"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -389,6 +572,30 @@
 						WarningLevel="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					>
+					<Tool
+						Name="MASM"
+						WarningLevel="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					>
+					<Tool
+						Name="MASM"
+						WarningLevel="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
+					>
+					<Tool
+						Name="MASM"
+						WarningLevel="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="MD5Sum.cpp"
@@ -415,6 +622,30 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -457,6 +688,30 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="Parser.y"
@@ -479,6 +734,37 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Performing Custom Build Step"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Performing Custom Build Step"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="$(InputFileName)"
+						CommandLine="bison --no-lines --defines --output &quot;$(InputDir)$(InputName).cpp&quot; &quot;$(InputFileName)&quot;&#x0D;&#x0A;"
+						Outputs="$(ProjectDir)\$(InputName).cpp; $(ProjectDir)\$(InputName).hpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="$(InputFileName)"
+						CommandLine="bison --no-lines --defines --output &quot;$(InputDir)$(InputName).cpp&quot; &quot;$(InputFileName)&quot;&#x0D;&#x0A;"
+						Outputs="$(ProjectDir)\$(InputName).cpp; $(ProjectDir)\$(InputName).hpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -547,6 +833,33 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_USE_32BIT_TIME_T;_CRT_SECURE_NO_DEPRECATE"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_USE_32BIT_TIME_T;_CRT_SECURE_NO_DEPRECATE"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_USE_32BIT_TIME_T;_CRT_SECURE_NO_DEPRECATE"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="Scanner.l"
@@ -568,6 +881,36 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="$(InputFileName)"
+						CommandLine="flex -L -o&quot;$(ProjectDir)$(InputName).cpp&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(ProjectDir)$(InputName).cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="$(InputFileName)"
+						CommandLine="flex -L -o&quot;$(ProjectDir)$(InputName).cpp&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(ProjectDir)$(InputName).cpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -630,6 +973,30 @@
 						WarningLevel="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					>
+					<Tool
+						Name="MASM"
+						WarningLevel="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					>
+					<Tool
+						Name="MASM"
+						WarningLevel="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
+					>
+					<Tool
+						Name="MASM"
+						WarningLevel="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="SHAHashSet.cpp"
@@ -672,6 +1039,30 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Beta|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="_SpecialBootstrapNodes|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="BootstrapNodesDat|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
