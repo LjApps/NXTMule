@@ -347,6 +347,7 @@ bool	CPreferences::indicateratings;
 bool	CPreferences::watchclipboard;
 bool	CPreferences::filterserverbyip;
 bool	CPreferences::m_bFirstStart;
+bool	CPreferences::m_bBetaNaggingDone;
 bool	CPreferences::m_bCreditSystem;
 bool	CPreferences::log2disk;
 bool	CPreferences::debug2disk;
@@ -1539,7 +1540,10 @@ void CPreferences::SavePreferences()
 	//---
 	ini.WriteString(L"AppVersion", theApp.m_strCurVersionLong);
 	//---
-
+#ifdef _BETA
+	if (m_bBetaNaggingDone)
+		ini.WriteString(L"BetaVersionNotified", theApp.m_strCurVersionLong);
+#endif
 #ifdef _DEBUG
 	ini.WriteInt(L"DebugHeap", m_iDbgHeap);
 #endif
@@ -1936,6 +1940,10 @@ void CPreferences::LoadPreferences()
 	if (strPrefsVersion.IsEmpty()){
 		m_bFirstStart = true;
 	}
+#ifdef _BETA
+	CString strBetaNotified = ini.GetString(L"BetaVersionNotified", L"");
+	m_bBetaNaggingDone = strBetaNotified.Compare(strCurrVersion) == 0;
+#endif
 
 #ifdef _DEBUG
 	m_iDbgHeap = ini.GetInt(L"DebugHeap", 1);

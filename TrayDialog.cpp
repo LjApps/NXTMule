@@ -360,4 +360,5 @@ LRESULT CTrayDialog::OnTaskBarCreated(WPARAM /*wParam*/, LPARAM /*lParam*/)
 void CTrayDialog::RestoreWindow()
 {
 	ShowWindow(SW_SHOW);
+	SetForegroundWindow();
 }

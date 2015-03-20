@@ -404,10 +404,13 @@ CemuleApp::CemuleApp(LPCTSTR lpszAppName)
 	m_strCurVersionLong += _T(" DEBUG");
 #endif
 #ifdef _BETA
-	m_strCurVersionLong += _T(" BETA");
+	m_strCurVersionLong += _T(" BETA1");
 #endif
 #ifdef _DEVBUILD
 	m_strCurVersionLong += _T(" DEVBUILD");
+#endif
+#ifdef _BOOTSTRAPNODESDAT
+	m_strCurVersionLong = _T("BOOTSTRAP BUILD");
 #endif
 
 	// create the protocol version number

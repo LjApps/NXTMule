@@ -3031,8 +3031,12 @@ void CemuleDlg::DestroySplash()
 		m_pSplashWnd = NULL;
 	}
 #ifdef _BETA
-	if (!thePrefs.IsFirstStart())
+	// only do it once to not be annyoing given that the beta phases are expected to last longer these days
+	if (!thePrefs.IsFirstStart() && thePrefs.ShouldBetaNag())
+	{
+		thePrefs.SetDidBetaNagging();
 		AfxMessageBox(GetResString(IDS_BETANAG), MB_ICONINFORMATION | MB_OK, 0);
+	}
 #endif
 }
 
