@@ -823,6 +823,7 @@
 #define IDS_WEB_BADLOGINATTEMPT         895
 #define IDS_ERR_TOOLARGEFILE            896
 #define IDS_MSGONLYFRIENDS              897
+#define IDS_BOOTSTRAPFAILED             898
 #define IDS_DAY_MO_SA                   899
 #define IDS_LIMITSOURCES                900
 #define IDS_LIMITCONS5SEC               901

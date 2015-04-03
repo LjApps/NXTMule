@@ -2909,6 +2909,7 @@ STRINGTABLE
 BEGIN
     IDS_ERR_TOOLARGEFILE    "File larger than the supported size of the edonkey protocol (>=256GB)"
     IDS_MSGONLYFRIENDS      "Accept from friends only"
+    IDS_BOOTSTRAPFAILED     "Failed to bootstrap Kad. Your nodes.dat might be outdated or there is a connection problem."
     IDS_DAY_MO_SA           "Mon-Sat"
     IDS_LIMITSOURCES        "Limit sources"
     IDS_LIMITCONS5SEC       "Limit connections/5secs"

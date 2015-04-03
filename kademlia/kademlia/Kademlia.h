@@ -99,6 +99,8 @@ namespace Kademlia
 			static bool	m_bRunning;
 			static CList<uint32, uint32> m_liStatsEstUsersProbes;
 			static bool m_bLANMode;
+			static _ContactList	s_liTriedBootstapList; // used for GUI
+
 			CPrefs *m_pPrefs;
 			CRoutingZone *m_pRoutingZone;
 			CKademliaUDPListener *m_pUDPListener;

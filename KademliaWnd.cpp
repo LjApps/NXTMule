@@ -88,7 +88,7 @@ CKademliaWnd::CKademliaWnd(CWnd* pParent /*=NULL*/)
 	searchList = new CKadSearchListCtrl;
 	m_pacONBSIPs = NULL;
 	m_pbtnWnd = new CDropDownButton;
-
+	m_bBootstrapListMode = false;
 	icon_kadsea=NULL;
 }
 
@@ -433,19 +433,39 @@ void CKademliaWnd::StopUpdateContacts()
 
 bool CKademliaWnd::ContactAdd(const Kademlia::CContact* contact)
 {
-	m_contactHistogramCtrl->ContactAdd(contact);
+	if (contact->IsBootstrapContact() != m_bBootstrapListMode)
+	{
+		if (!contact->IsBootstrapContact())
+		{
+			// we have real contacts to add, remove all the bootstrap contacts and cancel the mode
+			m_bBootstrapListMode = false;
+			m_contactListCtrl->DeleteAllItems();
+		}
+		else
+		{
+			ASSERT(0);
+			return false;
+		}
+	}
+	if (!m_bBootstrapListMode)
+		m_contactHistogramCtrl->ContactAdd(contact);
 	return m_contactListCtrl->ContactAdd(contact);
 }
 
 void CKademliaWnd::ContactRem(const Kademlia::CContact* contact)
 {
-	m_contactHistogramCtrl->ContactRem(contact);
-	m_contactListCtrl->ContactRem(contact);
+	if (contact->IsBootstrapContact() == m_bBootstrapListMode)
+	{
+		if (!m_bBootstrapListMode)
+			m_contactHistogramCtrl->ContactRem(contact);
+		m_contactListCtrl->ContactRem(contact);
+	}
 }
 
 void CKademliaWnd::ContactRef(const Kademlia::CContact* contact)
 {
-	m_contactListCtrl->ContactRef(contact);
+	if (contact->IsBootstrapContact() == m_bBootstrapListMode)
+		m_contactListCtrl->ContactRef(contact);
 }
 
 void CKademliaWnd::UpdateNodesDatFromURL(CString strURL){
@@ -607,4 +627,14 @@ BOOL CKademliaWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 			return CWnd::OnCommand(wParam, lParam);
 	}
 	return TRUE;
+}
+
+void CKademliaWnd::SetBootstrapListMode()
+{
+	// rather than normal contacts we show contacts only used to bootstrap in this mode
+	// once the first "normal" contact will be added, the mode is cancelled and all bootstrap contacts removed
+	if (m_contactListCtrl->GetItemCount() == 0)
+		m_bBootstrapListMode = true;
+	else
+		ASSERT(0);
 }

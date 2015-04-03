@@ -38,6 +38,7 @@ public:
 	void SetSearchGraph(Kademlia::CLookupHistory* pLookupHistory, bool bMakeVisible);
 	void ShowLookupGraph(bool bShow);
 	void UpdateContactCount();
+	void SetBootstrapListMode();
 
 	// Searches
 	CKadSearchListCtrl* searchList;
@@ -54,6 +55,8 @@ protected:
 	CCustomAutoComplete*		m_pacONBSIPs;
 	HICON						icon_kadsea;
 	CDropDownButton*			m_pbtnWnd;
+
+	bool						m_bBootstrapListMode;
 
 	void		SetAllIcons();
 	void		UpdateButtonTitle(bool bLookupGraph);
