@@ -136,9 +136,17 @@ void CKadContactListCtrl::UpdateContact(int iItem, const Kademlia::CContact *con
 	contact->GetDistance(&id);
 	SetItemText(iItem, colDistance, id);
 
-	UINT nImageShown = contact->GetType() > 4 ? 4 : contact->GetType();
-	if (nImageShown < 3 && !contact->IsIpVerified())
-		nImageShown = 5; // if we have an active contact, which is however not IP verified (and therefore not used), show this icon instead
+	UINT nImageShown;
+	if (contact->IsBootstrapContact())
+	{
+		nImageShown = contact->IsBootstrapFailed() ? 4 : 5;
+	}
+	else
+	{
+		nImageShown = contact->GetType() > 4 ? 4 : contact->GetType();
+		if (nImageShown < 3 && !contact->IsIpVerified())
+			nImageShown = 5; // if we have an active contact, which is however not IP verified (and therefore not used), show this icon instead
+	}
 	SetItem(iItem, 0, LVIF_IMAGE, 0, nImageShown, 0, 0, 0, 0);
 }
 

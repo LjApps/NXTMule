@@ -323,6 +323,7 @@ void CRoutingZone::ReadBootstrapNodesDat(CFileDataIO& file){
 						// look were to put this contact into the proper position
 						bool bInserted = false;
 						CContact* pContact = new CContact(uID, uIP, uUDPPort, uTCPPort, uMe, uContactVersion, 0, false);
+						pContact->SetBootstrapContact();
 						for (POSITION pos = CKademlia::s_liBootstapList.GetHeadPosition(); pos != NULL; CKademlia::s_liBootstapList.GetNext(pos)){
 							if (CKademlia::s_liBootstapList.GetAt(pos)->GetDistance() > uDistance){
 								CKademlia::s_liBootstapList.InsertBefore(pos, pContact);
@@ -341,6 +342,18 @@ void CRoutingZone::ReadBootstrapNodesDat(CFileDataIO& file){
 			}
 			uNumContacts--;
 		}
+
+		theApp.emuledlg->kademliawnd->StopUpdateContacts();
+		theApp.emuledlg->kademliawnd->SetBootstrapListMode();
+		POSITION pos = CKademlia::s_liBootstapList.GetHeadPosition();
+		while (pos != NULL)
+		{
+			CContact* pContact = CKademlia::s_liBootstapList.GetNext(pos);
+			pContact->SetGuiRefs(true);
+			theApp.emuledlg->kademliawnd->ContactAdd(pContact);
+		}
+		theApp.emuledlg->kademliawnd->StartUpdateContacts();
+
 		AddLogLine( false, GetResString(IDS_KADCONTACTSREAD), CKademlia::s_liBootstapList.GetCount());
 		DebugLog(_T("Loaded Bootstrap nodes.dat, selected %u out of %u valid contacts"), CKademlia::s_liBootstapList.GetCount(), uValidContacts);
 	}

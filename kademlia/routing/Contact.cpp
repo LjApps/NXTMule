@@ -115,6 +115,8 @@ void CContact::Copy(const CContact& fromContact){
 	m_bIPVerified = fromContact.m_bIPVerified;
 	m_cUDPKey = fromContact.m_cUDPKey;
 	m_bReceivedHelloPacket = fromContact.m_bReceivedHelloPacket;
+	m_bBootstrapContact = fromContact.m_bBootstrapContact;
+	m_bBootstrapFailed = fromContact.m_bBootstrapFailed;
 }
 
 void CContact::InitContact()
@@ -126,6 +128,8 @@ void CContact::InitContact()
 	m_uInUse = 0;
 	m_tCreated = time(NULL);
 	m_bReceivedHelloPacket = false;
+	m_bBootstrapContact = false;
+	m_bBootstrapFailed = false;
 }
 
 void CContact::GetClientID(CUInt128 *puId) const
