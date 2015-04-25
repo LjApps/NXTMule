@@ -2937,7 +2937,7 @@ CImageList *CDownloadListCtrl::CreateDragImage(int /*iItem*/, LPPOINT lpPoint)
 	{
 		int iItem = GetNextSelectedItem(pos);
 		const CtrlItem_Struct *pCtrlItem = (CtrlItem_Struct *)GetItemData(iItem);
-		if (pCtrlItem != NULL && pCtrlItem && pCtrlItem->type == FILE_TYPE)
+		if (pCtrlItem != NULL && pCtrlItem->type == FILE_TYPE)
 		{
 			CRect rcLabel;
 			GetItemRect(iItem, rcLabel, LVIR_LABEL);

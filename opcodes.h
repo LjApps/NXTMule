@@ -105,10 +105,9 @@
 #define CONFIGFOLDER			_T("config\\")
 #define MAXCONPER5SEC			20	
 #define MAXCON5WIN9X			10
-#define	UPLOAD_CHECK_CLIENT_DR	2048
-#define	UPLOAD_CLIENT_DATARATE	3072		// uploadspeed per client in bytes - you may want to adjust this if you have a slow connection or T1-T3 ;)
-#define	MAX_UP_CLIENTS_ALLOWED	100			// max. clients allowed regardless UPLOAD_CLIENT_DATARATE or any other factors. Don't set this too low, use DATARATE to adjust uploadspeed per client
-#define	MIN_UP_CLIENTS_ALLOWED	2			// min. clients allowed to download regardless UPLOAD_CLIENT_DATARATE or any other factors. Don't set this too high
+#define	UPLOAD_CLIENT_MAXDATARATE	50*1024	// max. target uploadspeed per client 
+#define	MAX_UP_CLIENTS_ALLOWED	100			// max. clients allowed regardless of any other factors.
+#define	MIN_UP_CLIENTS_ALLOWED	2			// min. clients allowed to download regardless of any other factors. Don't set this too high
 #define DOWNLOADTIMEOUT			SEC2MS(100)
 #define CONSERVTIMEOUT			SEC2MS(25)	// agelimit for pending connection attempts
 #define RARE_FILE				50

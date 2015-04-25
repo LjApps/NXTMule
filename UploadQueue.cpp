@@ -449,19 +449,37 @@ bool CUploadQueue::AcceptNewClient(uint32 curUploadSlots){
 	if (curUploadSlots >= MAX_UP_CLIENTS_ALLOWED ||
         curUploadSlots >= 4 &&
         (
-         curUploadSlots >= (datarate/UPLOAD_CHECK_CLIENT_DR) ||
-         curUploadSlots >= ((uint32)MaxSpeed)*1024/UPLOAD_CLIENT_DATARATE ||
+         curUploadSlots >= (datarate/GetTargetClientDataRate(true)) ||
+         curUploadSlots >= ((uint32)MaxSpeed)*1024/GetTargetClientDataRate(false) ||
          (
           thePrefs.GetMaxUpload() == UNLIMITED &&
           !thePrefs.IsDynUpEnabled() &&
           thePrefs.GetMaxGraphUploadRate(true) > 0 &&
-          curUploadSlots >= ((uint32)thePrefs.GetMaxGraphUploadRate(false))*1024/UPLOAD_CLIENT_DATARATE
+          curUploadSlots >= ((uint32)thePrefs.GetMaxGraphUploadRate(false))*1024/GetTargetClientDataRate(false)
          )
         )
     ) // max number of clients to allow for all circumstances
+	{
 	    return false;
-
+	}
 	return true;
+}
+
+uint32 CUploadQueue::GetTargetClientDataRate(bool bMinDatarate) const
+{
+	uint32 nOpenSlots = GetUploadQueueLength();
+	uint32 nResult;
+	if (nOpenSlots <= 3)
+		nResult = 3 * 1204; // 3KB/s for 3 slots or less
+	else if (nOpenSlots >= 40)
+		nResult = UPLOAD_CLIENT_MAXDATARATE; // 50KB/s for 40 slots and more
+	else
+		nResult = min(UPLOAD_CLIENT_MAXDATARATE, (uint32) ((float)nOpenSlots * 1.25f * 1024)); // linear increase in between
+
+	if (bMinDatarate)
+		return (uint32)(nResult * 0.75f);
+	else
+		return nResult;
 }
 
 bool CUploadQueue::ForceNewClient(bool allowEmptyWaitingQueue) {
@@ -486,14 +504,14 @@ bool CUploadQueue::ForceNewClient(bool allowEmptyWaitingQueue) {
     else
 		MaxSpeed = thePrefs.GetMaxUpload();
 
-	uint32 upPerClient = UPLOAD_CLIENT_DATARATE;
+	uint32 upPerClient = GetTargetClientDataRate(false);
 
     // if throttler doesn't require another slot, go with a slightly more restrictive method
 	if( MaxSpeed > 20 || MaxSpeed == UNLIMITED)
 		upPerClient += datarate/43;
 
-	if( upPerClient > 7680 )
-		upPerClient = 7680;
+	if( upPerClient > UPLOAD_CLIENT_MAXDATARATE )
+		upPerClient = UPLOAD_CLIENT_MAXDATARATE;
 
 	//now the final check
 

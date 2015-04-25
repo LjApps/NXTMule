@@ -341,14 +341,14 @@ void UploadBandwidthThrottler::Pause(bool paused) {
 }
 
 uint32 UploadBandwidthThrottler::GetSlotLimit(uint32 currentUpSpeed) {
-    uint32 upPerClient = UPLOAD_CLIENT_DATARATE;
+	uint32 upPerClient = theApp.uploadqueue->GetTargetClientDataRate(true);
 
     // if throttler doesn't require another slot, go with a slightly more restrictive method
 	if( currentUpSpeed > 20*1024 )
 		upPerClient += currentUpSpeed/43;
 
-	if( upPerClient > 7680 )
-		upPerClient = 7680;
+	if( upPerClient > UPLOAD_CLIENT_MAXDATARATE )
+		upPerClient = UPLOAD_CLIENT_MAXDATARATE;
 
 	//now the final check
 
@@ -689,8 +689,8 @@ UINT UploadBandwidthThrottler::RunInternal() {
 
 		    // Equal bandwidth for all slots
             uint32 maxSlot = (uint32)m_StandardOrder_list.GetSize();
-            if(maxSlot > 0 && allowedDataRate/maxSlot < UPLOAD_CLIENT_DATARATE) {
-                maxSlot = allowedDataRate/UPLOAD_CLIENT_DATARATE;
+            if(maxSlot > 0 && allowedDataRate/maxSlot < theApp.uploadqueue->GetTargetClientDataRate(true)) {
+                maxSlot = allowedDataRate/theApp.uploadqueue->GetTargetClientDataRate(true);
             }
 
             if(maxSlot > m_highestNumberOfFullyActivatedSlots) {
