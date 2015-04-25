@@ -1044,12 +1044,8 @@ bool CClientReqSocket::ProcessPacket(const BYTE* packet, uint32 size, UINT opcod
 	}
 	catch(CString error)
 	{
-		if (thePrefs.GetVerbose() && !error.IsEmpty()){
-			if (opcode == OP_REQUESTFILENAME /*low priority for OP_REQUESTFILENAME*/)
-				DebugLogWarning(_T("Error: %s - while processing eDonkey packet: opcode=%s  size=%u; %s"), error, DbgGetDonkeyClientTCPOpcode(opcode), size, DbgGetClientInfo());
-			else
-				DebugLogWarning(_T("Error: %s - while processing eDonkey packet: opcode=%s  size=%u; %s"), error, DbgGetDonkeyClientTCPOpcode(opcode), size, DbgGetClientInfo());
-		}
+		if (thePrefs.GetVerbose() && !error.IsEmpty())
+			DebugLogWarning(_T("Error: %s - while processing eDonkey packet: opcode=%s  size=%u; %s"), error, DbgGetDonkeyClientTCPOpcode(opcode), size, DbgGetClientInfo());
 		if (client)
 			client->SetDownloadState(DS_ERROR, _T("Error while processing eDonkey packet (CString exception): ") + error);	
 		Disconnect(_T("Error when processing packet.") + error);
