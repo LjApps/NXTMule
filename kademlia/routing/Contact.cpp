@@ -236,7 +236,10 @@ void CContact::UpdateType()
 			break;
 		case 1:
 			m_byType = 1;
-			m_tExpires = time(NULL) + (unsigned)HR2S(1.5);
+			// Tux: Fix: unhandled floating point exception [NetFinity] [start]
+			//m_tExpires = time(NULL) + (unsigned)HR2S(1.5);
+			m_tExpires = (time_t)(time(NULL) + HR2S(1) + MIN2S(30));
+			// Tux: Fix: unhandled floating point exception [NetFinity] [end]
 			break;
 		default:
 			m_byType = 0;
