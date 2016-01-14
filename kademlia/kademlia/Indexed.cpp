@@ -115,6 +115,16 @@ CIndexed::~CIndexed()
 			delete pCurrSrcHash;
 		}
 
+		// Tux: Fix: memleak fix [WiZaRd] [start]
+		pos1 = m_mapLoad.GetStartPosition();
+		while (pos1 != NULL)
+		{
+			CCKey key1;
+			Load* pLoad;
+			m_mapLoad.GetNextAssoc(pos1, key1, pLoad);
+			delete pLoad;
+		}
+		// Tux: Fix: memleak fix [WiZaRd] [end]
 		pos1 = m_mapKeyword.GetStartPosition();
 		while( pos1 != NULL )
 		{
@@ -641,7 +651,10 @@ bool CIndexed::AddNotes(const CUInt128& uKeyID, const CUInt128& uSourceID, Kadem
 				pCurrNote->ptrlEntryList.AddHead(pEntry);
 				ASSERT(0);
 				uLoad = (uint8)((uSize*100)/KADEMLIAMAXNOTESPERFILE);
-				m_uTotalIndexKeyword++;
+				// Tux: Fix: wrong counter [WiZaRd] [start]
+//				m_uTotalIndexKeyword++;
+				++m_uTotalIndexNotes;
+				// Tux: Fix: wrong counter [WiZaRd] [end]
 				return true;
 			}
 		}
@@ -662,7 +675,10 @@ bool CIndexed::AddNotes(const CUInt128& uKeyID, const CUInt128& uSourceID, Kadem
 			pCurrNote->ptrlEntryList.AddHead(pEntry);
 			pCurrNoteHash->ptrlistSource.AddHead(pCurrNote);
 			uLoad = (uint8)((uSize*100)/KADEMLIAMAXNOTESPERFILE);
-			m_uTotalIndexKeyword++;
+			// Tux: Fix: wrong counter [WiZaRd] [start]
+//			m_uTotalIndexKeyword++;
+			++m_uTotalIndexNotes;
+			// Tux: Fix: wrong counter [WiZaRd] [end]
 			return true;
 		}
 	}
